@@ -3,6 +3,10 @@ uuid = "778c5047-3e82-4d04-81b5-6fafe2d2d704"
 authors = ["Sasha Petrenko"]
 version = "0.1.0"
 
+[deps]
+ClusterValidityIndices = "2fefd308-f647-4698-a2f0-e90cfcbca9ad"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+
 [compat]
 julia = "1.6"
 
