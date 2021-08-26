@@ -8,6 +8,7 @@ ClusterValidityIndices = "2fefd308-f647-4698-a2f0-e90cfcbca9ad"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
+ClusterValidityIndices = "0.2"
 julia = "1.6"
 
 [extras]
