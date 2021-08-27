@@ -12,7 +12,6 @@ apply_kernel(rocket.kernels[1], data)
 n_example = 5
 t = zeros(n_example, 2)
 for i = 1:n_example
-    # t[i, :] .= apply_kernel(rocket.kernels[1], data)
     t[i, :] = apply_kernel(rocket.kernels[i], data)
 end
 
