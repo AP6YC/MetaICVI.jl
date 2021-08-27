@@ -1,21 +1,24 @@
 using StatsBase
 using ClusterValidityIndices
 using Logging
-# using Plots
+using Plots
 
 # Plotting options
-# dpi = 300       # Plotting dots-per-inch
-# theme(:dark)    # Plotting style
-# gr()            # GR backend (default for Plots.jl)
+dpi = 300       # Plotting dots-per-inch
+theme(:dark)    # Plotting style
+gr()            # GR backend (default for Plots.jl)
+# unicodeplots()
 
 # Include the library definitions
-include(projectdir("julia/lib_sim.jl"))
+# include(projectdir("julia/lib_sim.jl"))
 
 # Set the logging level to Info and standardize the random seed
 LogLevel(Logging.Info)
-Random.seed!(0)
-data_dir(args...) = projectdir("work/data/meta_icvi", args...)
-results_dir(args...) = projectdir("work/results/meta_icvi", args...)
+# Random.seed!(0)
+# data_dir(args...) = projectdir("work/data/meta_icvi", args...)
+# results_dir(args...) = projectdir("work/results/meta_icvi", args...)
+data_dir(args...) = joinpath("../data/training", args...)
+results_dir(args...) = joinpath("../data/results", args...)
 
 # Setup the data
 data_paths = [

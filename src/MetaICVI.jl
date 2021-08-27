@@ -1,5 +1,6 @@
 module MetaICVI
 
-# Write your package code here.
+include("common.jl")
+include("meta-icvi/meta-icvi.jl")
 
 end
