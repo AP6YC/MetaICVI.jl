@@ -8,7 +8,8 @@ using Random
 # Plotting options
 dpi = 300       # Plotting dots-per-inch
 theme(:dark)    # Plotting style
-gr()            # GR backend (default for Plots.jl)
+# gr()            # GR backend (default for Plots.jl)
+unicodeplots()
 
 # Parameters
 n = 5                           # Window size
@@ -120,8 +121,8 @@ l = @layout [a; b]
 pt = plot(p, g, layout = l, size=(800,500))
 
 # Save and show the plot
-png(pt, results_dir("1_correlation_iris"))
-# display(pt)
+# png(pt, results_dir("1_correlation_iris"))
+display(pt)
 
 # xlims!(1, n_corr)
 # ylims!(0, Inf)
