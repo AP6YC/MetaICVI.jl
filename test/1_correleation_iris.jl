@@ -6,8 +6,8 @@ using Plots
 using Random
 
 # Plotting options
-dpi = 300       # Plotting dots-per-inch
 theme(:dark)    # Plotting style
+dpi = 300       # Plotting dots-per-inch
 # gr()            # GR backend (default for Plots.jl)
 unicodeplots()
 

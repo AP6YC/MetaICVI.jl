@@ -7,6 +7,10 @@ include("test_utils.jl")
     # Write your tests here.
 end
 
+@testset "3: Rocket Testing" begin
+    include("3_rocket-dev.jl")
+end
+
 @testset "1: Iris Training and Correlation" begin
     include("1_correleation_iris.jl")
 end

@@ -16,21 +16,40 @@ using Random
 """
     RocketKernel
 
-
+Structure containing information about one rocket kernel.
 """
 struct RocketKernel
-    length::Int64
-    weight::Vector{Float64}
-    bias::Float64
-    dilation::Int64
-    padding::Int64
+    length::Integer
+    weight::RealVector
+    bias::RealFP
+    dilation::Integer
+    padding::Integer
 end
 
+"""
+    Rocket
+
+Structure containing a vector of rocket kernels
+"""
 mutable struct Rocket
     kernels::Vector{RocketKernel}
 end
 
-function Rocket(input_length::Int64, n_kernels::Int64)
+"""
+    Rocket()
+
+Default constructor for the Rocket object.
+"""
+function Rocket()
+    return Rocket(5, 100)
+end
+
+"""
+    Rocket(input_length::Integer, n_kernels::Integer)
+
+Constructor for the Rocket structure, requiring feature length and the number of kernels.
+"""
+function Rocket(input_length::Integer, n_kernels::Integer)
     # Declare our candidate kernel lengths
     candidate_lengths = [7, 9, 11]
 
@@ -43,8 +62,8 @@ function Rocket(input_length::Int64, n_kernels::Int64)
         _length = sample(candidate_lengths)
         _weight = randn(_length)
         _bias = rand()*2 - 1
-        _dilation = Int64(floor(rand() * log2((input_length - 1) / (_length - 1))))
-        _padding = Bool(rand(0:1)) ? Int64(floor(((_length - 1) * _dilation) / 2)) : 0
+        _dilation = Integer(floor(rand() * log2((input_length - 1) / (_length - 1))))
+        _padding = Bool(rand(0:1)) ? Integer(floor(((_length - 1) * _dilation) / 2)) : 0
         # Create the kernel
         _kernel = RocketKernel(
             _length,
@@ -59,7 +78,12 @@ function Rocket(input_length::Int64, n_kernels::Int64)
     Rocket(kernels)
 end
 
-function apply_kernel(kernel::RocketKernel, x::Array)
+"""
+    apply_kernel(kernel::RocketKernel, x::RealVector)
+
+Apply a single Rocket kernel to the sequence x.
+"""
+function apply_kernel(kernel::RocketKernel, x::RealVector)
     input_length = length(x)
     output_length = (input_length + (2 * kernel.padding)) - ((kernel.length - 1) * kernel.dilation)
     _ppv = 0
@@ -80,9 +104,14 @@ function apply_kernel(kernel::RocketKernel, x::Array)
         end
     end
     return [_ppv / output_length, _max]
-end
+end # apply_kernel(kernel::RocketKernel, x::RealVector)
 
-function apply_kernels(rocket::Rocket, x::Vector)
+"""
+    apply_kernels(rocket::Rocket, x::RealVector)
+
+Run a vector of rocket kernels along a sequence x.
+"""
+function apply_kernels(rocket::Rocket, x::RealVector)
     # Get the number of kernels for preallocation and iteration
     n_kernels = length(rocket.kernels)
 
@@ -96,55 +125,4 @@ function apply_kernels(rocket::Rocket, x::Vector)
 
     # Return the full features array
     return features
-end
-
-# mutable struct Rocket
-#     weights::Vector{Vector{Float64}}
-#     lengths::Vector{Int64}
-#     biases::Vector{Float64}
-#     dilations::Vector{Int64}
-#     paddings::Vector{Int64}
-# end
-
-# # function generate_kernels(input_length::Int64, num_kernels::Int64)
-# function Rocket(input_length::Int64, num_kernels::Int64)
-#     candidate_lengths = [7, 9, 11]
-#     lengths = sample(candidate_lengths, num_kernels)
-
-#     # weights = zeros(Float64, sum(lengths))
-#     weights = Vector{Vector{Float64}}()
-#     for i = 1:length(lengths)
-#         push!(weights, zeros(Float64, lengths[i]))
-#     end
-#     biases = zeros(Float64, num_kernels)
-#     dilations = zeros(Int64, num_kernels)
-#     paddings = zeros(Int64, num_kernels)
-
-#     for i = 1:num_kernels
-#         _length = lengths[i]
-#         weights[i] = randn(_length)
-#         biases[i] = rand()*2 - 1
-#         _dilation = Int64(floor(rand() * log2((input_length - 1) / (_length - 1))))
-#         dilations[i] = _dilation
-#         paddings[i] = Bool(rand(0:1)) ? Int64(floor(((_length - 1) * _dilation) / 2)) : 0
-#     end
-
-#     Rocket(
-#         weights,
-#         lengths,
-#         biases,
-#         dilations,
-#         paddings
-#     )
-# end
-
-# function apply_kernel(rocket::Rocket, x::Array, i::Int64)
-#     input_length = length(x)
-#     output_length = (input_length + (2 * rocket.paddings[i])) - ((rocket.lengths[i] - 1) * dilation)
-#     _ppv = 0
-#     _max = -Inf
-#     ending = (input_length + rocket.paddings[i]) - ((rocket.lengths[i] - 1) * rocket.dilations[i])
-#     for i = -rocket.paddings[i]:ending
-#         _sum = rocket.biases[i]
-#     end
-# end
+end # apply_kernels(rocket::Rocket, x::RealVector)
