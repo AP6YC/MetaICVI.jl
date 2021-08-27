@@ -3,7 +3,6 @@ using AdaptiveResonance
 using ClusterValidityIndices
 using DrWatson
 using Logging
-
 using Plots
 
 # Plotting options

@@ -1,6 +1,5 @@
-using MetaICVI
-using Test
+using SafeTestsets
 
-@testset "MetaICVI.jl" begin
-    # Write your tests here.
-end
+@safetestset "All Test Sets" begin
+    include("test_sets.jl")
+end # @safetestset "All Test Sets"
