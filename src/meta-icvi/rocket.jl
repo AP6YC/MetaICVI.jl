@@ -1,3 +1,5 @@
+module Rocket
+
 # Angus Dempster, Francois Petitjean, Geoff Webb
 #
 # @article{dempster_etal_2020,
@@ -13,6 +15,31 @@
 using StatsBase
 using Random
 
+# -------------------------------------------
+# Aliases
+# -------------------------------------------
+#   **Taken from StatsBase.jl**
+#
+#  These types signficantly reduces the need of using
+#  type parameters in functions (which are often just
+#  for the purpose of restricting the arrays to real)
+#
+# These could be removed when the Base supports
+# covariant type notation, i.e. AbstractVector{<:Real}
+
+# Real-numbered aliases
+const RealArray{T<:Real, N} = AbstractArray{T, N}
+const RealVector{T<:Real} = AbstractArray{T, 1}
+const RealMatrix{T<:Real} = AbstractArray{T, 2}
+
+# Integered aliases
+const IntegerArray{T<:Integer, N} = AbstractArray{T, N}
+const IntegerVector{T<:Integer} = AbstractArray{T, 1}
+const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
+
+# Specifically floating-point aliases
+const RealFP = Union{Float32, Float64}
+
 """
     RocketKernel
 
@@ -27,29 +54,29 @@ struct RocketKernel
 end
 
 """
-    Rocket
+    RocketModule
 
 Structure containing a vector of rocket kernels
 """
-mutable struct Rocket
+mutable struct RocketModule
     kernels::Vector{RocketKernel}
 end
 
 """
-    Rocket()
+    RocketModule()
 
-Default constructor for the Rocket object.
+Default constructor for the RocketModule object.
 """
-function Rocket()
-    return Rocket(5, 100)
+function RocketModule()
+    return RocketModule(5, 100)
 end
 
 """
-    Rocket(input_length::Integer, n_kernels::Integer)
+    RocketModule(input_length::Integer, n_kernels::Integer)
 
-Constructor for the Rocket structure, requiring feature length and the number of kernels.
+Constructor for the RocketModule structure, requiring feature length and the number of kernels.
 """
-function Rocket(input_length::Integer, n_kernels::Integer)
+function RocketModule(input_length::Integer, n_kernels::Integer)
     # Declare our candidate kernel lengths
     candidate_lengths = [7, 9, 11]
 
@@ -75,13 +102,13 @@ function Rocket(input_length::Integer, n_kernels::Integer)
         push!(kernels, _kernel)
     end
 
-    Rocket(kernels)
+    RocketModule(kernels)
 end
 
 """
     apply_kernel(kernel::RocketKernel, x::RealVector)
 
-Apply a single Rocket kernel to the sequence x.
+Apply a single RocketModule kernel to the sequence x.
 """
 function apply_kernel(kernel::RocketKernel, x::RealVector)
     input_length = length(x)
@@ -107,11 +134,11 @@ function apply_kernel(kernel::RocketKernel, x::RealVector)
 end # apply_kernel(kernel::RocketKernel, x::RealVector)
 
 """
-    apply_kernels(rocket::Rocket, x::RealVector)
+    apply_kernels(rocket::RocketModule, x::RealVector)
 
 Run a vector of rocket kernels along a sequence x.
 """
-function apply_kernels(rocket::Rocket, x::RealVector)
+function apply_kernels(rocket::RocketModule, x::RealVector)
     # Get the number of kernels for preallocation and iteration
     n_kernels = length(rocket.kernels)
 
@@ -125,4 +152,17 @@ function apply_kernels(rocket::Rocket, x::RealVector)
 
     # Return the full features array
     return features
-end # apply_kernels(rocket::Rocket, x::RealVector)
+end # apply_kernels(rocket::RocketModule, x::RealVector)
+
+# Export relevant names
+export
+
+    # Structs
+    RocketKernel,
+    RocketModule,
+
+    # Methods
+    apply_kernel,
+    apply_kernels
+
+end

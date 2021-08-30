@@ -9,7 +9,7 @@ include("meta-icvi/meta-icvi.jl")
 export
 
     MetaICVIModule,
-    Rocket,
+    RocketModule,
     RocketKernel,
     apply_kernel,
     apply_kernels

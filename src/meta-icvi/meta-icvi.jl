@@ -5,6 +5,8 @@ using Parameters
 # Get the rocket kernel definitions
 include("rocket.jl")
 
+using .Rocket
+
 """
     opts_MetaICVIModule()
 
@@ -34,5 +36,5 @@ mutable struct MetaICVIModule
     cvis::Vector{AbstractCVI}
     criterion_values::RealVector
     correlations::RealVector
-    rocket::Rocket
+    rocket::RocketModule
 end

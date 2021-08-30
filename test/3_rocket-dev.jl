@@ -5,7 +5,7 @@ using MetaICVI
 n_kernels = 5
 input_length = 100
 
-rocket = Rocket(input_length, n_kernels)
+rocket = RocketModule(input_length, n_kernels)
 
 data = rand(input_length)
 apply_kernel(rocket.kernels[1], data)
