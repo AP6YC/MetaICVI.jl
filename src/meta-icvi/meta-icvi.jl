@@ -8,16 +8,16 @@ include("rocket.jl")
 using .Rocket
 
 """
-    opts_MetaICVIModule()
+    MetaICVIOpts()
 
 Meta-ICVI module options
 
 # Examples
 ```julia-repl
-julia> opts_MetaICVIModule()
+julia> MetaICVIOpts()
 ```
 """
-@with_kw mutable struct opts_MetaICVIModule @deftype Integer
+@with_kw mutable struct MetaICVIOpts @deftype Integer
     # Size of ICVI window: [1, infty]
     icvi_window = 5; @assert icvi_window >= 1
     # Size of correlation window: [1, infty)
@@ -26,13 +26,13 @@ julia> opts_MetaICVIModule()
     n_rocket = 5; @assert n_rocket >= 1
     # Display flag
     display::Bool = true
-end # opts_MetaICVIModule
+end # MetaICVIOpts
 
 """
     MetaICVI
 """
 mutable struct MetaICVIModule
-    opts::opts_MetaICVIModule
+    opts::MetaICVIOpts
     cvis::Vector{AbstractCVI}
     criterion_values::RealVector
     correlations::RealVector
