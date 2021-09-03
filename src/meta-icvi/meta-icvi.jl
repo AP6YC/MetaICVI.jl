@@ -40,6 +40,7 @@ end # MetaICVIOpts
 - `cvis::Vector{AbstractCVI}`: list of cvis used for computing the CVIs.
 - `criterion_values::RealVector`: list of outputs of the cvis used for computing correlations.
 - `correlations::RealVector`: list of outputs of the rank correlations.
+- `features::RealVector`: list of outputs of the rocket feature kernels.
 - `rocket::RocketModule`: time-series random feature kernels module.
 - `performance::RealFP`: final output of the most recent the Meta-ICVI step.
 """
@@ -48,6 +49,7 @@ mutable struct MetaICVIModule
     cvis::Vector{AbstractCVI}
     criterion_values::Vector{RealVector}
     correlations::RealVector
+    features::RealVector
     rocket::RocketModule
     performance::RealFP
 end
@@ -88,6 +90,7 @@ function MetaICVIModule(opts::MetaICVIOpts)
         cvis,
         cvi_values,
         Array{RealFP}(undef, 0),
+        Array{RealFP}(undef, 0),
         rocket_module,
         0.0
     )
@@ -106,6 +109,69 @@ function MetaICVIModule()
 end # MetaICVIModule()
 
 """
+    get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
+
+Compute and store the icvi criterion values.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: the Meta-ICVI module.
+- `sample::RealVector`: the sample used for clustering.
+- `label::Integer`: the label prescribed to the sample by the clustering algorithm.
+"""
+function get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
+    # Update all of the cvis incrementally
+    for ix = 1:length(metaicvi.cvis)
+        # Compute and push the criterion value
+        value = get_icvi!(metaicvi.cvis[ix], sample, label)
+        push!(metaicvi.criterion_values[ix], value)
+        # FIFO the list to size
+        while length(metaicvi.criterion_values[ix]) > metaicvi.opts.icvi_window
+            popfirst!(metaicvi.criterion_values[ix])
+        end
+    end
+end # get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
+
+"""
+    get_correlations(metaicvi::MetaICVIModule)
+
+Compute and store the rank correlations from the cvi values.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: the Meta-ICVI module.
+"""
+function get_correlations(metaicvi::MetaICVIModule)
+    # If the cvi window is big enough, compute the correlations
+    if length(metaicvi.criterion_values[1]) >= metaicvi.opts.icvi_window
+        # Get the spearman correlation
+        correlation = corspearman(metaicvi.criterion_values[1], metaicvi.criterion_values[2])
+        # Sanitize a potential NaN response
+        # metaicvi.performance = isequal(performance, NaN) ? 0 : performance
+        push!(metaicvi.correlations, correlation)
+        # FIFO the list to size
+        while length(metaicvi.correlations) > metaicvi.opts.correlation_window
+            popfirst!(metaicvi.correlations)
+        end
+    end
+end # get_correlations(metaicvi::MetaICVIModule)
+
+"""
+    get_rocket_features(metaicvi::MetaICVIModule)
+
+Compute and store the rocket features.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: the Meta-ICVI module.
+"""
+function get_rocket_features(metaicvi::MetaICVIModule)
+    # If there are enough correlations, compute compute the meta-icvi value
+    if length(metaicvi.correlations) >= metaicvi.opts.correlation_window
+        metaicvi.features = apply_kernels(metaicvi.rocket, metaicvi.correlations)[:, 1]
+        # TODO
+        metaicvi.performance = 0.0
+    end
+end # get_rocket_features(metaicvi::MetaICVIModule)
+
+"""
     get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
 
 Compute and return the meta-icvi value.
@@ -118,38 +184,14 @@ Compute and return the meta-icvi value.
 function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
     # If the sample was not misclassified and we have a big enough window
     if label != -1 && label > 0
-        # Update all of the cvis incrementally
-        for ix = 1:length(metaicvi.cvis)
-            # Compute and push the criterion value
-            # @info sample
-            # @info label
-            value = get_icvi!(metaicvi.cvis[ix], sample, label)
-            push!(metaicvi.criterion_values[ix], value)
-            # FIFO the list to size
-            while length(metaicvi.criterion_values[ix]) > metaicvi.opts.icvi_window
-                popfirst!(metaicvi.criterion_values[ix])
-            end
-        end
+        # Compute the icvi values
+        get_icvis(metaicvi, sample, label)
 
-        # If the cvi window is big enough, compute the correlations
-        if length(metaicvi.criterion_values[1]) >= metaicvi.opts.icvi_window
-            # Get the spearman correlation
-            correlation = corspearman(metaicvi.criterion_values[1], metaicvi.criterion_values[2])
-            # Sanitize a potential NaN response
-            # metaicvi.performance = isequal(performance, NaN) ? 0 : performance
-            push!(metaicvi.correlations, correlation)
-            # FIFO the list to size
-            while length(metaicvi.correlations) > metaicvi.opts.correlation_window
-                popfirst!(metaicvi.correlations)
-            end
-        end
+        # Compute the rank correlations
+        get_correlations(metaicvi)
 
-        # If there are enough correlations, compute compute the meta-icvi value
-        if length(metaicvi.correlations) >= metaicvi.opts.correlation_window
-            features = apply_kernels(metaicvi.rocket, metaicvi.correlations)
-            # TODO
-            metaicvi.performance = 0.0
-        end
+        # Compute the rocket features
+        get_rocket_features(metaicvi)
     else
         # Default to 0
         metaicvi.performance = 0.0
@@ -157,72 +199,3 @@ function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integ
 
     return metaicvi.performance
 end # get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
-
-# # Create a container for their criterion values for quick access
-#     # values = zeros(Float64, length(cvis))
-#     values = Vector{Vector{Float64}}()
-#     for i = 1:length(cvis)
-#         push!(values, Vector{Float64}())
-#     end
-
-#     # Total performance
-#     performance = 0
-
-#     # Default number of windows
-#     n_window = 5
-
-#     # Construct the metrics container
-#     TaskDetectorMetrics(
-#         cvis,               # cvis
-#         values,             # values
-#         performance,        # performance
-#         n_window            # n_window
-#     )
-# end # TaskDetectorMetrics()
-
-# """
-#     update_metrics(metrics::TaskDetectorMetrics, sample::Array, label::Int)
-
-# Update the task detector's metrics using ICVIs.
-
-# # Fields
-# - `metrics::TaskDetectorMetrics`: the metrics object being updated.
-# - `sample::Array`: the array of features that are clustered to the label.
-# - `label::Int`: the label prescribed by the clustering algorithm.
-# """
-# function update_metrics(metrics::TaskDetectorMetrics, sample::Array, label::Integer)
-#     # Get the number of cvis each time, accomodating changes during operation
-#     n_cvis = length(metrics.cvis)
-
-#     # If the sample was not misclassified and we have a big enough window
-#     if label != -1
-#         # Update all of the cvis incrementally
-#         for ix = 1:n_cvis
-#             value = get_icvi!(metrics.cvis[ix], sample, label)
-#             push!(metrics.values[ix], value)
-#         end
-#         # If the window is big enough, compute the performance
-#         if length(metrics.values[1]) >= metrics.n_window
-#             # Get the spearman correlation
-#             performance = corspearman(metrics.values[1], metrics.values[2])/2 + 0.5
-#             # Sanitize a potential NaN response
-#             metrics.performance = isequal(performance, NaN) ? 0 : performance
-#         end
-#     else
-#         # Default to 0
-#         metrics.performance = 0
-#     end
-
-#     # FIFO the list
-#     for ix = 1:n_cvis
-#         while length(metrics.values[ix]) > metrics.n_window
-#             popfirst!(metrics.values[ix])
-#         end
-#     end
-
-#     # Calculate the performance
-#     # metrics.performance = sigmoid(8*(mean(metrics.values) - 0.5))
-
-#     # Return that performance
-#     return metrics.performance
-# end # update_metrics(metrics::TaskDetectorMetrics, sample::Array, label::Integer)

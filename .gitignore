@@ -4,6 +4,9 @@
 # Development ignores
 dev/
 
+# Project-specific ignores
+default_rocket.jld2
+
 # Ignore generated results
 data/results/*
 !data/results/.gitkeep
