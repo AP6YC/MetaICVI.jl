@@ -13,11 +13,12 @@ module Rocket
 # https://arxiv.org/abs/1910.13051 (preprint)
 
 using StatsBase
+using DelimitedFiles
 using Random
 
-# -------------------------------------------
-# Aliases
-# -------------------------------------------
+# -----------------------------------------------------------------------------
+# ALIASES
+# -----------------------------------------------------------------------------
 #   **Taken from StatsBase.jl**
 #
 #  These types signficantly reduces the need of using
@@ -40,6 +41,10 @@ const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
 # Specifically floating-point aliases
 const RealFP = Union{Float32, Float64}
 
+# -----------------------------------------------------------------------------
+# STRUCTURES
+# -----------------------------------------------------------------------------
+
 """
     RocketKernel
 
@@ -56,7 +61,7 @@ end
 """
     RocketModule
 
-Structure containing a vector of rocket kernels
+Structure containing a vector of rocket kernels.
 """
 mutable struct RocketModule
     kernels::Vector{RocketKernel}
@@ -74,7 +79,7 @@ end
 """
     RocketModule(input_length::Integer, n_kernels::Integer)
 
-Constructor for the RocketModule structure, requiring feature length and the number of kernels.
+Create a new RocketModule structure, requiring feature length and the number of kernels.
 """
 function RocketModule(input_length::Integer, n_kernels::Integer)
     # Declare our candidate kernel lengths
@@ -105,10 +110,18 @@ function RocketModule(input_length::Integer, n_kernels::Integer)
     RocketModule(kernels)
 end
 
+# -----------------------------------------------------------------------------
+# METHODS
+# -----------------------------------------------------------------------------
+
 """
     apply_kernel(kernel::RocketKernel, x::RealVector)
 
 Apply a single RocketModule kernel to the sequence x.
+
+# Arguments
+- `kernel::RocketKernel`: rocket kernel used for computing features.
+- `x::RealVector`: data sequence for computing rocket features.
 """
 function apply_kernel(kernel::RocketKernel, x::RealVector)
     input_length = length(x)
@@ -137,6 +150,10 @@ end # apply_kernel(kernel::RocketKernel, x::RealVector)
     apply_kernels(rocket::RocketModule, x::RealVector)
 
 Run a vector of rocket kernels along a sequence x.
+
+# Arguments
+- `rocket::RocketModule`: rocket module containing many kernels for processing.
+- `x::RealVector`: data sequence for computing rocket features.
 """
 function apply_kernels(rocket::RocketModule, x::RealVector)
     # Get the number of kernels for preallocation and iteration
@@ -154,6 +171,35 @@ function apply_kernels(rocket::RocketModule, x::RealVector)
     return features
 end # apply_kernels(rocket::RocketModule, x::RealVector)
 
+"""
+    save_rocket(rocket::RocketModule; filepath::String="rocket.csv")
+
+Save the rocket parameters to a .csv file.
+
+# Arguments
+`rocket::RocketModule`: rocket module to save.
+`filepath::String`: path to .csv for saving rocket parameters. Defaults to rocket.csv.
+"""
+function save_rocket(rocket::RocketModule; filepath::String="rocket.csv")
+
+end # save_rocket(rocket::RocketModule; filepath::String="rocket.csv")
+
+"""
+    load_rocket(;filepath::String="rocket.csv")
+
+Load and return a rocket module with existing parameters from a .csv file.
+
+# Arguments
+`filepath::String`: path to .csv containing rocket parameters. Defaults to rocket.csv.
+"""
+function load_rocket(;filepath::String="rocket.csv")
+
+end # load_rocket(;filepath::String="rocket.csv")
+
+# -----------------------------------------------------------------------------
+# EXPORTS
+# -----------------------------------------------------------------------------
+
 # Export relevant names
 export
 
@@ -163,6 +209,8 @@ export
 
     # Methods
     apply_kernel,
-    apply_kernels
+    apply_kernels,
+    load_rocket,
+    save_rocket
 
 end

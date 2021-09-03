@@ -1,4 +1,5 @@
 using MetaICVI
+using ClusterValidityIndices
 using Test
 
 include("test_utils.jl")
@@ -18,8 +19,15 @@ end
 
     # Load the data and test across all supervised modules
     data = load_iris(data_dir("Iris.csv"))
+    data.train_y = relabel_cvi_data(data.train_y)
 
-    #
+    # Iterate over the data
+    for i = 1:length(data.train_y)
+        sample = data.train_x[:, i]
+        label = data.train_y[i]
+        performance = get_metaicvi(metaicvi, sample, label)
+        @info performance i
+    end
 end
 
 # @testset "1: Iris Training and Correlation" begin

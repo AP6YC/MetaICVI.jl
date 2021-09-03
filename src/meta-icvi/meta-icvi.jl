@@ -6,6 +6,7 @@ using Parameters
 include("rocket.jl")
 
 using .Rocket
+using StatsBase
 
 """
     MetaICVIOpts()
@@ -30,13 +31,22 @@ end # MetaICVIOpts
 
 """
     MetaICVI
+
+# Fields
+- `opts::MetaICVIOpts`: options for construction.
+- `cvis::Vector{AbstractCVI}`: list of cvis used for computing the CVIs.
+- `criterion_values::RealVector`: list of outputs of the cvis used for computing correlations.
+- `correlations::RealVector`: list of outputs of the rank correlations.
+- `rocket::RocketModule`: time-series random feature kernels module.
+- `performance::RealFP`: final output of the most recent the Meta-ICVI step.
 """
 mutable struct MetaICVIModule
     opts::MetaICVIOpts
     cvis::Vector{AbstractCVI}
-    criterion_values::RealVector
+    criterion_values::Vector{RealVector}
     correlations::RealVector
     rocket::RocketModule
+    performance::RealFP
 end
 
 """
@@ -54,13 +64,19 @@ function MetaICVIModule(opts::MetaICVIOpts)
         GD43()
     ]
 
+    cvi_values = [Array{RealFP}(undef, 0) for i=1:length(cvis)]
+
+    # Construct the rocket kernels
+    rocket_module = RocketModule(opts.correlation_window, opts.n_rocket)
+
     # Construct and return the module
     return MetaICVIModule(
         opts,
         cvis,
+        cvi_values,
         Array{RealFP}(undef, 0),
-        Array{RealFP}(undef, 0),
-        RocketModule()
+        rocket_module,
+        0.0
     )
 end # MetaICVIModule(opts::MetaICVIOpts)
 
@@ -70,30 +86,66 @@ end # MetaICVIModule(opts::MetaICVIOpts)
 Default constructor for the MetaICVIModule.
 """
 function MetaICVIModule()
+    # Create the default options
     opts = MetaICVIOpts()
+    # Return the Meta-ICVI module constructed with the default options
     return MetaICVIModule(opts)
-end
+end # MetaICVIModule()
 
+"""
+    get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
+
+Compute and return the meta-icvi value.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: the Meta-ICVI module.
+- `sample::RealVector`: the sample used for clustering.
+- `label::Integer`: the label prescribed to the sample by the clustering algorithm.
+"""
 function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
     # If the sample was not misclassified and we have a big enough window
     if label != -1 && label > 0
         # Update all of the cvis incrementally
-        for ix = 1:n_cvis
-            value = get_icvi!(metrics.cvis[ix], sample, label)
-            push!(metrics.values[ix], value)
+        for ix = 1:length(metaicvi.cvis)
+            # Compute and push the criterion value
+            # @info sample
+            # @info label
+            value = get_icvi!(metaicvi.cvis[ix], sample, label)
+            push!(metaicvi.criterion_values[ix], value)
+            # FIFO the list to size
+            while length(metaicvi.criterion_values[ix]) > metaicvi.opts.icvi_window
+                popfirst!(metaicvi.criterion_values[ix])
+            end
         end
-        # If the window is big enough, compute the performance
-        if length(metrics.values[1]) >= metrics.n_window
+
+        # If the cvi window is big enough, compute the correlations
+        if length(metaicvi.criterion_values[1]) >= metaicvi.opts.icvi_window
             # Get the spearman correlation
-            performance = corspearman(metrics.values[1], metrics.values[2])/2 + 0.5
+            correlation = corspearman(metaicvi.criterion_values[1], metaicvi.criterion_values[2])
             # Sanitize a potential NaN response
-            metrics.performance = isequal(performance, NaN) ? 0 : performance
+            # metaicvi.performance = isequal(performance, NaN) ? 0 : performance
+            push!(metaicvi.correlations, correlation)
+            # FIFO the list to size
+            while length(metaicvi.correlations) > metaicvi.opts.correlation_window
+                popfirst!(metaicvi.correlations)
+            end
+        end
+
+        # If there are enough correlations, compute compute the meta-icvi value
+        if length(metaicvi.correlations) >= metaicvi.opts.correlation_window
+            features = apply_kernels(metaicvi.rocket, metaicvi.correlations)
+            @info typeof(features)
+            @info size(features)
+            # TODO
+            metaicvi.performance = 0.0
         end
     else
         # Default to 0
-        metrics.performance = 0
+        metaicvi.performance = 0.0
     end
-end
+
+    return metaicvi.performance
+end # get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
 
 # # Create a container for their criterion values for quick access
 #     # values = zeros(Float64, length(cvis))
