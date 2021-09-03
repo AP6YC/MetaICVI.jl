@@ -1,6 +1,7 @@
 using ClusterValidityIndices
 using Logging
 using Parameters
+using MLJ
 
 # Get the rocket kernel definitions
 include("rocket.jl")
@@ -25,6 +26,8 @@ julia> MetaICVIOpts()
     correlation_window = 5; @assert correlation_window >= 1
     # Number of rocket kernels: [1, infty)
     n_rocket = 5; @assert n_rocket >= 1
+    # Rocket file location
+    rocket_file::String = ""
     # Display flag
     display::Bool = true
 end # MetaICVIOpts
@@ -67,7 +70,17 @@ function MetaICVIModule(opts::MetaICVIOpts)
     cvi_values = [Array{RealFP}(undef, 0) for i=1:length(cvis)]
 
     # Construct the rocket kernels
-    rocket_module = RocketModule(opts.correlation_window, opts.n_rocket)
+    if isfile(opts.rocket_file)
+        # If we have a file, load the module
+        rocket_module = load_rocket(opts.rocket_file)
+    else
+        # Otherwise, construct a module
+        rocket_module = RocketModule(opts.correlation_window, opts.n_rocket)
+        # If we specified a file but none was there, then save to that file
+        if !isempty(opts.rocket_file)
+            save_rocket(rocket_module, opts.rocket_file)
+        end
+    end
 
     # Construct and return the module
     return MetaICVIModule(

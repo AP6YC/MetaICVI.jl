@@ -172,31 +172,31 @@ function apply_kernels(rocket::RocketModule, x::RealVector)
 end # apply_kernels(rocket::RocketModule, x::RealVector)
 
 """
-    save_rocket(rocket::RocketModule, filepath::String="rocket.csv")
+    save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
 
-Save the rocket parameters to a .csv file.
+Save the rocket parameters to a .jld2 file.
 
 # Arguments
 `rocket::RocketModule`: rocket module to save.
-`filepath::String`: path to .csv for saving rocket parameters. Defaults to rocket.csv.
+`filepath::String`: path to .jld2 for saving rocket parameters. Defaults to rocket.jld2.
 """
-function save_rocket(rocket::RocketModule, filepath::String="rocket.csv")
+function save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
     # Use the JLD2 save_object for simplicity
     save_object(filepath, rocket)
-end # save_rocket(rocket::RocketModule, filepath::String="rocket.csv")
+end # save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
 
 """
-    load_rocket(filepath::String="rocket.csv")
+    load_rocket(filepath::String="rocket.jld2")
 
-Load and return a rocket module with existing parameters from a .csv file.
+Load and return a rocket module with existing parameters from a .jld2 file.
 
 # Arguments
-`filepath::String`: path to .csv containing rocket parameters. Defaults to rocket.csv.
+`filepath::String`: path to .jld2 containing rocket parameters. Defaults to rocket.jld2.
 """
-function load_rocket(filepath::String="rocket.csv")
+function load_rocket(filepath::String="rocket.jld2")
     # Use the JLD2 load_object for simplicity
     return load_object(filepath)
-end # load_rocket(filepath::String="rocket.csv")
+end # load_rocket(filepath::String="rocket.jld2")
 
 # -----------------------------------------------------------------------------
 # EXPORTS
