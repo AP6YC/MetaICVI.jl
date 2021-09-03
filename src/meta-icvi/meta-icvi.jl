@@ -134,8 +134,6 @@ function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integ
         # If there are enough correlations, compute compute the meta-icvi value
         if length(metaicvi.correlations) >= metaicvi.opts.correlation_window
             features = apply_kernels(metaicvi.rocket, metaicvi.correlations)
-            @info typeof(features)
-            @info size(features)
             # TODO
             metaicvi.performance = 0.0
         end

@@ -30,6 +30,15 @@ end
     end
 end
 
+@testset "Rocket.jl" begin
+    # Test saving and loading
+    filepath = "my_rocket"
+    my_rocket = MetaICVI.Rocket.RocketModule()
+    MetaICVI.Rocket.save_rocket(my_rocket, filepath)
+    my_new_rocket = MetaICVI.Rocket.load_rocket(filepath)
+    rm(filepath)
+end
+
 # @testset "1: Iris Training and Correlation" begin
 #     include("1_correleation_iris.jl")
 # end
