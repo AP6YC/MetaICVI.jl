@@ -1,11 +1,5 @@
 # This file is machine-generated - editing it directly is not advised
 
-[[AdaptiveResonance]]
-deps = ["Distributed", "LinearAlgebra", "Logging", "Parameters", "Printf", "ProgressBars", "SharedArrays", "Statistics"]
-git-tree-sha1 = "26bc1357eed86ce86548da44602a055d79b495e6"
-uuid = "3d72adc0-63d3-4141-bf9b-84450dd0395b"
-version = "0.3.4"
-
 [[ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 
@@ -176,9 +170,9 @@ version = "1.0.0"
 
 [[StatsBase]]
 deps = ["DataAPI", "DataStructures", "LinearAlgebra", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "fed1ec1e65749c4d96fc20dd13bea72b55457e62"
+git-tree-sha1 = "8cbbc098554648c84f79a463c9ff0fd277144b6c"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.33.9"
+version = "0.33.10"
 
 [[TOML]]
 deps = ["Dates"]
