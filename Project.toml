@@ -15,6 +15,7 @@ ScikitLearn = "3646fa90-6ef7-5e7e-9f22-8aca16db6324"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
+JLD2 = "0.4"
 julia = "1.6"
 
 [extras]
