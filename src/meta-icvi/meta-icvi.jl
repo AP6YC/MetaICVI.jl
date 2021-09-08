@@ -1,7 +1,6 @@
 using ClusterValidityIndices
 using Logging
 using Parameters
-using MLJ
 
 # Get the rocket kernel definitions
 include("rocket.jl")
@@ -168,6 +167,8 @@ function get_rocket_features(metaicvi::MetaICVIModule)
         metaicvi.features = apply_kernels(metaicvi.rocket, metaicvi.correlations)[:, 1]
         # TODO
         metaicvi.performance = 0.0
+    else
+        metaicvi.features = zeros(metaicvi.opts.n_rocket)
     end
 end # get_rocket_features(metaicvi::MetaICVIModule)
 
