@@ -1,23 +1,26 @@
 using MetaICVI
-using ScikitLearn: fit!, score, @sk_import
+# using ScikitLearn: fit!, score, @sk_import
+using ScikitLearn: fit!, score
 using ScikitLearn.CrossValidation: train_test_split
 
-@sk_import linear_model:RidgeClassifier
-
-learner = RidgeClassifier()
+# @sk_import linear_model:RidgeClassifier
+# learner = RidgeClassifier()
 
 # Include local utils
 include("../test/test_utils.jl")
 
 # Identify the rocket file
-rocket_file = "default_rocket.jld2"
+rocket_file = "data/models/rocket.jld2"
+classifier_file = "data/models/classifier.jld"
 
 # Point to data
 data_dir(args...) = joinpath("data/training", args...)
 
 # Create the options
 opts = MetaICVIOpts(
-    rocket_file = rocket_file
+    rocket_file = rocket_file,
+    classifier_file = classifier_file,
+    n_rocket = 20
 )
 
 # Create the metaicvi object
@@ -45,11 +48,10 @@ data = Dict(
 )
 
 # Create the target containers
-features_dim = metaicvi.opts.n_rocket
 data_lengths = [length(correct_y), length(under_y), length(over_y)]
 offset_lengths = [0, length(correct_y), length(under_y)]
 data_length = sum(data_lengths)
-features_data = zeros(features_dim, data_length)
+features_data = zeros(metaicvi.opts.n_rocket, data_length)
 features_targets = zeros(Int, data_length)
 
 # Mapping of datatype to numeral target for classification
@@ -81,5 +83,8 @@ end
 # Create a split for training/testing the learner, correct for how scikitlearn expects features
 x_train, x_test, y_train, y_test = train_test_split(transpose(features_data), features_targets, test_size=0.4)
 
-fit!(learner, x_train, y_train)
-score(learner, x_test, y_test)
+# Train and test the learner
+fit!(metaicvi.classifier, x_train, y_train)
+performance = score(metaicvi.classifier, x_test, y_test)
+
+@info "Performance is: $performance"

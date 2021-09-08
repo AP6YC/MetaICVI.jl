@@ -1,12 +1,38 @@
-using ClusterValidityIndices
+# -----------------------------------------------------------------------------
+# IMPORTS
+# -----------------------------------------------------------------------------
+
+# External libraries
+
 using Logging
 using Parameters
+using StatsBase: corspearman
+using JLD
+using PyCallJLD
+# using PyCall
+# using ScikitLearn: fit!, score, predict, @sk_import
+# # @sk_import linear_model:RidgeClassifier
+# @sk_import linear_model:RidgeClassifier
+# classifier = RidgeClassifier()
+
+# Custom libraries
+
+using ClusterValidityIndices
+
+# Local libraries
 
 # Get the rocket kernel definitions
 include("rocket.jl")
-
 using .Rocket
-using StatsBase
+
+# -----------------------------------------------------------------------------
+# PREPROCESSING
+# -----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+# STRUCTURES
+# -----------------------------------------------------------------------------
 
 """
     MetaICVIOpts()
@@ -26,7 +52,9 @@ julia> MetaICVIOpts()
     # Number of rocket kernels: [1, infty)
     n_rocket = 5; @assert n_rocket >= 1
     # Rocket file location
-    rocket_file::String = ""
+    rocket_file::String = "data/models/rocket.jld2"
+    # Classifier file location
+    classifier_file::String="data/models/classifier.jld"
     # Display flag
     display::Bool = true
 end # MetaICVIOpts
@@ -41,6 +69,7 @@ end # MetaICVIOpts
 - `correlations::RealVector`: list of outputs of the rank correlations.
 - `features::RealVector`: list of outputs of the rocket feature kernels.
 - `rocket::RocketModule`: time-series random feature kernels module.
+- `classifier::PyCall.PyObject`: ScikitLearn classifier.
 - `performance::RealFP`: final output of the most recent the Meta-ICVI step.
 """
 mutable struct MetaICVIModule
@@ -50,6 +79,8 @@ mutable struct MetaICVIModule
     correlations::RealVector
     features::RealVector
     rocket::RocketModule
+    # classifier::PyCall.PyObject
+    classifier::Any
     performance::RealFP
 end
 
@@ -68,7 +99,8 @@ function MetaICVIModule(opts::MetaICVIOpts)
         GD43()
     ]
 
-    cvi_values = [Array{RealFP}(undef, 0) for i=1:length(cvis)]
+    # Initialize the empty vectors for each criterion value
+    cvi_values = [Array{RealFP}(undef, 0) for _ = 1:length(cvis)]
 
     # Construct the rocket kernels
     if isfile(opts.rocket_file)
@@ -77,10 +109,22 @@ function MetaICVIModule(opts::MetaICVIOpts)
     else
         # Otherwise, construct a module
         rocket_module = RocketModule(opts.correlation_window, opts.n_rocket)
+        @warn "Missing/incorrect path for the rocket module file. \n\t Constructing a new rocket module"
         # If we specified a file but none was there, then save to that file
         if !isempty(opts.rocket_file)
             save_rocket(rocket_module, opts.rocket_file)
         end
+    end
+
+    # Load the classifier
+    if isfile(opts.classifier_file)
+        @info "Loading classifier"
+        classifier = JLD.load(opts.classifier_file, "learner")
+    else
+        @info "Constructing classifier"
+        classifier = RidgeClassifier()
+        # classifier = linear_classifier()
+        @warn "Missing/incorrect path for pretrained classifier file. \n\t Constructing a new RidgeClassifier."
     end
 
     # Construct and return the module
@@ -91,6 +135,7 @@ function MetaICVIModule(opts::MetaICVIOpts)
         Array{RealFP}(undef, 0),
         Array{RealFP}(undef, 0),
         rocket_module,
+        classifier,
         0.0
     )
 end # MetaICVIModule(opts::MetaICVIOpts)
@@ -106,6 +151,10 @@ function MetaICVIModule()
     # Return the Meta-ICVI module constructed with the default options
     return MetaICVIModule(opts)
 end # MetaICVIModule()
+
+# -----------------------------------------------------------------------------
+# METHODS
+# -----------------------------------------------------------------------------
 
 """
     get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
