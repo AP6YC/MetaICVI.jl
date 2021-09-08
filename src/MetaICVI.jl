@@ -16,8 +16,6 @@ include("common.jl")
 # Meta-icvi module definition
 include("meta-icvi/meta-icvi.jl")
 
-
-
 export
 
     # Structures
@@ -25,6 +23,7 @@ export
     MetaICVIOpts,
 
     # Methods
-    get_metaicvi
+    get_metaicvi,
+    train_and_save
 
 end

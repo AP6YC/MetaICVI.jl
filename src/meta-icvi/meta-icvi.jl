@@ -9,7 +9,8 @@ using Parameters
 using StatsBase: corspearman
 using JLD
 using PyCallJLD
-# using PyCall
+using PyCall
+using ScikitLearn
 # using ScikitLearn: fit!, score, predict, @sk_import
 # # @sk_import linear_model:RidgeClassifier
 # @sk_import linear_model:RidgeClassifier
@@ -79,8 +80,9 @@ mutable struct MetaICVIModule
     correlations::RealVector
     features::RealVector
     rocket::RocketModule
-    # classifier::PyCall.PyObject
-    classifier::Any
+    classifier::PyCall.PyObject
+    # classifier::Any
+    # classifier::ScikitLearn.Models.LinearRegression
     performance::RealFP
 end
 
@@ -105,6 +107,7 @@ function MetaICVIModule(opts::MetaICVIOpts)
     # Construct the rocket kernels
     if isfile(opts.rocket_file)
         # If we have a file, load the module
+        @info "Loading rocket kernels: $(opts.rocket_file)"
         rocket_module = load_rocket(opts.rocket_file)
     else
         # Otherwise, construct a module
@@ -113,18 +116,26 @@ function MetaICVIModule(opts::MetaICVIOpts)
         # If we specified a file but none was there, then save to that file
         if !isempty(opts.rocket_file)
             save_rocket(rocket_module, opts.rocket_file)
+        else
+            error("No filename provided for rocket file saving/loading.")
         end
     end
 
     # Load the classifier
     if isfile(opts.classifier_file)
-        @info "Loading classifier"
-        classifier = JLD.load(opts.classifier_file, "learner")
+        @info "Loading classifier: $(opts.classifier_file)"
+        # classifier = JLD.load(opts.classifier_file, "learner")
+        classifier = load_classifier(opts.classifier_file)
     else
         @info "Constructing classifier"
         classifier = RidgeClassifier()
         # classifier = linear_classifier()
         @warn "Missing/incorrect path for pretrained classifier file. \n\t Constructing a new RidgeClassifier."
+        if !isempty(opts.classifier_file)
+            save_classifier(classifier, opts.classifier_file)
+        else
+            error("No filename provided for classifier saving/loading.")
+        end
     end
 
     # Construct and return the module
@@ -155,6 +166,52 @@ end # MetaICVIModule()
 # -----------------------------------------------------------------------------
 # METHODS
 # -----------------------------------------------------------------------------
+
+"""
+    load_classifier(filepath::String)
+
+Load the classifier at the filepath.
+
+# Arguments
+`filepath::String`: location of the classifier .jld file.
+"""
+function load_classifier(filepath::String)
+    return JLD.load(filepath, "classifier")
+end # load_classifier(filepath::String)
+
+"""
+    save_classifier(classifier::PyCall.PyObject, filepath::String)
+
+Save the classifier at the filepath.
+
+# Arguments
+`classifier::PyCall.PyObject`: classifier object to save.
+`filepath::String`: name/path to save the classifier .jld file.
+"""
+function save_classifier(classifier::PyCall.PyObject, filepath::String)
+    JLD.save(filepath, "classifier", classifier)
+end # save_classifier(classifier::PyCall.PyObject, filepath::String)
+
+"""
+    train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
+
+Train the classifier on x/y and save the kernels and classifier.
+
+# Arguments
+`metaicvi::MetaICVIModule`: metaicvi module to save with.
+`x::RealMatrix`: features to train on.
+`y::IntegerVector`: correct/over/under partition targets.
+"""
+function train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
+    # Create a new classifier
+    metaicvi.classifier = RidgeClassifier()
+    # Train the classifier
+    fit!(metaicvi.classifier, x, y)
+    # Save the rocket kernels used
+    save_rocket(metaicvi.rocket, metaicvi.opts.rocket_file)
+    # Save the classifier used
+    save_classifier(metaicvi.classifier, metaicvi.opts.classifier_file)
+end
 
 """
     get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)

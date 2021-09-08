@@ -84,7 +84,8 @@ end
 x_train, x_test, y_train, y_test = train_test_split(transpose(features_data), features_targets, test_size=0.4)
 
 # Train and test the learner
-fit!(metaicvi.classifier, x_train, y_train)
+# fit!(metaicvi.classifier, x_train, y_train)
+train_and_save(metaicvi, x_train, y_train)
 performance = score(metaicvi.classifier, x_test, y_test)
 
 @info "Performance is: $performance"
