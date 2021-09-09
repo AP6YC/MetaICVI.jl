@@ -19,11 +19,19 @@ jobs:
           - x64
           # - x86
     steps:
+      # Checkout the code
       - uses: actions/checkout@v2
+      # Setup python dependencies
+      - name: Install scikit-learn
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U scikit-learn
+      # Setup julia
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
+      # Setup the julia cache location
       - uses: actions/cache@v1
         env:
           cache-name: cache-artifacts
@@ -34,9 +42,13 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
+      # Build the package
       - uses: julia-actions/julia-buildpkg@v1
+      # Run the unit tests
       - uses: julia-actions/julia-runtest@v1
+      # Get the coverage from the unit tests
       - uses: julia-actions/julia-processcoverage@v1
+      # Give codecov the coverage report
       - uses: codecov/codecov-action@v1
         with:
           file: lcov.info
@@ -46,21 +58,31 @@ jobs:
     name: Documentation
     runs-on: ubuntu-latest
     steps:
+      # Checkout the code
       - uses: actions/checkout@v2
+      # Setup python dependencies
+      - name: Install scikit-learn
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U scikit-learn
+      # Setup julia with the latest version
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
+      # Setup the docs julia directory
       - run: |
           julia --project=docs -e '
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
+      # Run the doctests
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
             using MetaICVI
             DocMeta.setdocmeta!(MetaICVI, :DocTestSetup, :(using MetaICVI); recursive=true)
             doctest(MetaICVI)'
+      # Make the documentation, pointing to the correct keys for uploading
       - run: julia --project=docs docs/make.jl
         env:
           JULIA_PKG_SERVER: ""
