@@ -63,7 +63,9 @@ julia> MetaICVIOpts()
 end # MetaICVIOpts
 
 """
-    MetaICVI
+    MetaICVIModule
+
+Stateful information for a single MetaICVI module.
 
 # Fields
 - `opts::MetaICVIOpts`: options for construction.
@@ -84,7 +86,7 @@ mutable struct MetaICVIModule
     rocket::RocketModule
     classifier::PyCall.PyObject
     performance::RealFP
-end
+end # MetaICVIModule
 
 """
     MetaICVIModule(opts::MetaICVIOpts)
