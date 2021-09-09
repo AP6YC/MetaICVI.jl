@@ -24,8 +24,6 @@ version = "1.21.0+0"
 [[ClusterValidityIndices]]
 deps = ["LinearAlgebra", "Logging", "ProgressBars", "Random", "Statistics"]
 git-tree-sha1 = "a0f1c11c3857ac38da997d3a078199d824d69dfe"
-repo-rev = "master"
-repo-url = "https://github.com/AP6YC/ClusterValidityIndices.jl"
 uuid = "2fefd308-f647-4698-a2f0-e90cfcbca9ad"
 version = "0.2.1"
 
