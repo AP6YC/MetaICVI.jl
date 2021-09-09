@@ -15,6 +15,12 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Tutorial" => [
+            "Guide" => "man/guide.md",
+            "Examples" => "man/examples.md",
+            "Contributing" => "man/contributing.md",
+            "Index" => "man/full-index.md"
+        ]
     ],
 )
 
