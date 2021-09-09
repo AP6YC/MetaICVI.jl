@@ -91,7 +91,7 @@ iter_rocket = n + n_window:n_samples
 @info n_rocket
 @info iter_rocket
 
-rocket = Rocket(n_window, n_kernels)
+rocket = RocketModule(n_window, n_kernels)
 for dx = 1:n_data
     # for i = iter_rocket
     for i = 1:size(corrs)[1]

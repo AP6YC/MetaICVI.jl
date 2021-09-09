@@ -1,7 +1,7 @@
 using DelimitedFiles
 using Logging
 using Random
-using StatsBase
+# using StatsBase
 using Statistics
 
 """
@@ -72,9 +72,9 @@ Loads the iris dataset for testing and examples.
 function load_iris(data_path::String ; split_ratio::Real = 0.8)
     raw_data = readdlm(data_path,',')
     labels = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
-    raw_x = raw_data[2:end, 2:5]
+    raw_x = convert(Array{Float64, 2}, raw_data[2:end, 2:5])
     raw_y_labels = raw_data[2:end, 6]
-    raw_y = Array{Int64}(undef, 0)
+    raw_y = Array{Integer}(undef, 0)
     for ix = 1:length(raw_y_labels)
         for jx = 1:length(labels)
             if raw_y_labels[ix] == labels[jx]
@@ -107,7 +107,7 @@ function get_cvi_data(data_file::String)
     data = readdlm(data_file, ',')
     data = permutedims(data)
     train_x = convert(Matrix{Float64}, data[1:2, :])
-    train_y = convert(Vector{Int64}, data[3, :])
+    train_y = convert(Vector{Integer}, data[3, :])
 
     return train_x, train_y
 end # get_cvi_data(data_file::String)
