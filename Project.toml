@@ -5,17 +5,22 @@ version = "0.1.0"
 
 [deps]
 ClusterValidityIndices = "2fefd308-f647-4698-a2f0-e90cfcbca9ad"
+JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
-MLJ = "add582a8-e3ab-11e8-2d5e-e98b27df1bc7"
-MLJScikitLearnInterface = "5ae90465-5518-4432-b9d2-8a1def2f0cab"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+PyCallJLD = "de320387-30cd-5f83-91a8-a6e0ae8b8444"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 ScikitLearn = "3646fa90-6ef7-5e7e-9f22-8aca16db6324"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 ScikitLearn = "0.6"
+MLJ = "0.16"
+JLD = "0.12"
+PyCall = "1"
+PyCallJLD = "0.2"
 julia = "1.6"
 
 [extras]

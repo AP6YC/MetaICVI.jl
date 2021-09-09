@@ -10,7 +10,12 @@ end
 
 @testset "0: Module" begin
     # Create the module
-    metaicvi = MetaICVIModule()
+    opts = MetaICVIOpts(
+        rocket_file = "../data/models/rocket.jld2",
+        classifier_file = "../data/models/classifier.jld",
+        fail_on_missing = true
+    )
+    metaicvi = MetaICVIModule(opts)
     @info fieldnames(typeof(metaicvi))
 
     # Point to the correct data directories
@@ -26,7 +31,6 @@ end
         sample = data.train_x[:, i]
         label = data.train_y[i]
         performance = get_metaicvi(metaicvi, sample, label)
-        @info performance i
     end
 end
 
