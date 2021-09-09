@@ -1,3 +1,5 @@
+__precompile__()
+
 module Rocket
 
 # Angus Dempster, Francois Petitjean, Geoff Webb
@@ -12,9 +14,10 @@ module Rocket
 #
 # https://arxiv.org/abs/1910.13051 (preprint)
 
-using StatsBase
-using JLD2
+# using StatsBase: ZScoreTransform, fit!
+using JLD2: save_object, load_object
 using Random
+using StatsBase: sample
 
 # -----------------------------------------------------------------------------
 # ALIASES
