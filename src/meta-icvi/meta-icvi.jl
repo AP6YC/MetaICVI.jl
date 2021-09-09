@@ -58,10 +58,14 @@ julia> MetaICVIOpts()
     classifier_file::String="data/models/classifier.jld"
     # Display flag
     display::Bool = true
+    # Flag to fail if any file is missing (rather than creating new objects)
+    fail_on_missing::Bool = false
 end # MetaICVIOpts
 
 """
-    MetaICVI
+    MetaICVIModule
+
+Stateful information for a single MetaICVI module.
 
 # Fields
 - `opts::MetaICVIOpts`: options for construction.
@@ -81,10 +85,8 @@ mutable struct MetaICVIModule
     features::RealVector
     rocket::RocketModule
     classifier::PyCall.PyObject
-    # classifier::Any
-    # classifier::ScikitLearn.Models.LinearRegression
     performance::RealFP
-end
+end # MetaICVIModule
 
 """
     MetaICVIModule(opts::MetaICVIOpts)
@@ -126,28 +128,37 @@ function MetaICVIModule(opts::MetaICVIOpts)
         @info "Loading classifier: $(opts.classifier_file)"
         # classifier = JLD.load(opts.classifier_file, "learner")
         classifier = load_classifier(opts.classifier_file)
+    # If we didn't get a valid file, check for errors or construct a new object
     else
-        @info "Constructing classifier"
-        classifier = RidgeClassifier()
-        # classifier = linear_classifier()
-        @warn "Missing/incorrect path for pretrained classifier file. \n\t Constructing a new RidgeClassifier."
-        if !isempty(opts.classifier_file)
-            save_classifier(classifier, opts.classifier_file)
+        error_msg = "Missing/incorrect path for pretrained classifier file."
+        # If we want to fail on a missing file, throw an error
+        if opts.fail_on_missing
+            error(error_msg)
+        # Otherwise, put up a warning and create a new classifier.
         else
-            error("No filename provided for classifier saving/loading.")
+            # If a file is even provided, construct a classifier
+            if !isempty(opts.classifier_file)
+                @warn error_msg
+                @info "Constructing a new classifier."
+                classifier = RidgeClassifier()
+                save_classifier(classifier, opts.classifier_file)
+            # Otherwise, throw an error that no filename is provided
+            else
+                error("No filename provided for classifier saving/loading.")
+            end
         end
     end
 
     # Construct and return the module
     return MetaICVIModule(
-        opts,
-        cvis,
-        cvi_values,
-        Array{RealFP}(undef, 0),
-        Array{RealFP}(undef, 0),
-        rocket_module,
-        classifier,
-        0.0
+        opts,                       # opts
+        cvis,                       # cvis
+        cvi_values,                 # criterion_values
+        Array{RealFP}(undef, 0),    # correlations
+        Array{RealFP}(undef, 0),    # features
+        rocket_module,              # rocket
+        classifier,                 # classifier
+        0.0                         # performance
     )
 end # MetaICVIModule(opts::MetaICVIOpts)
 
@@ -204,6 +215,7 @@ Train the classifier on x/y and save the kernels and classifier.
 """
 function train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
     # Create a new classifier
+    # TODO: option to train/retrain loaded/serialized models
     metaicvi.classifier = RidgeClassifier()
     # Train the classifier
     fit!(metaicvi.classifier, x, y)
