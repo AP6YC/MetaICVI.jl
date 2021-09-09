@@ -1,3 +1,7 @@
+__precompile__()
+
+module Rocket
+
 # Angus Dempster, Francois Petitjean, Geoff Webb
 #
 # @article{dempster_etal_2020,
@@ -10,27 +14,68 @@
 #
 # https://arxiv.org/abs/1910.13051 (preprint)
 
-using StatsBase
+# using StatsBase: ZScoreTransform, fit!
+using JLD2: save_object, load_object
 using Random
+using StatsBase: sample
+
+# -----------------------------------------------------------------------------
+# ALIASES
+# -----------------------------------------------------------------------------
+#   **Taken from StatsBase.jl**
+#
+#  These types signficantly reduces the need of using
+#  type parameters in functions (which are often just
+#  for the purpose of restricting the arrays to real)
+#
+# These could be removed when the Base supports
+# covariant type notation, i.e. AbstractVector{<:Real}
+
+# Real-numbered aliases
+const RealArray{T<:Real, N} = AbstractArray{T, N}
+const RealVector{T<:Real} = AbstractArray{T, 1}
+const RealMatrix{T<:Real} = AbstractArray{T, 2}
+
+# Integered aliases
+const IntegerArray{T<:Integer, N} = AbstractArray{T, N}
+const IntegerVector{T<:Integer} = AbstractArray{T, 1}
+const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
+
+# Specifically floating-point aliases
+const RealFP = Union{Float32, Float64}
+
+# -----------------------------------------------------------------------------
+# STRUCTURES
+# -----------------------------------------------------------------------------
 
 """
     RocketKernel
 
-
+Structure containing information about one rocket kernel.
 """
 struct RocketKernel
-    length::Int64
-    weight::Vector{Float64}
-    bias::Float64
-    dilation::Int64
-    padding::Int64
+    length::Integer
+    weight::RealVector
+    bias::RealFP
+    dilation::Integer
+    padding::Integer
 end
 
-mutable struct Rocket
+"""
+    RocketModule
+
+Structure containing a vector of rocket kernels.
+"""
+mutable struct RocketModule
     kernels::Vector{RocketKernel}
 end
 
-function Rocket(input_length::Int64, n_kernels::Int64)
+"""
+    RocketModule(input_length::Integer, n_kernels::Integer)
+
+Create a new RocketModule structure, requiring feature length and the number of kernels.
+"""
+function RocketModule(input_length::Integer, n_kernels::Integer)
     # Declare our candidate kernel lengths
     candidate_lengths = [7, 9, 11]
 
@@ -43,8 +88,8 @@ function Rocket(input_length::Int64, n_kernels::Int64)
         _length = sample(candidate_lengths)
         _weight = randn(_length)
         _bias = rand()*2 - 1
-        _dilation = Int64(floor(rand() * log2((input_length - 1) / (_length - 1))))
-        _padding = Bool(rand(0:1)) ? Int64(floor(((_length - 1) * _dilation) / 2)) : 0
+        _dilation = Integer(floor(rand() * log2((input_length - 1) / (_length - 1))))
+        _padding = Bool(rand(0:1)) ? Integer(floor(((_length - 1) * _dilation) / 2)) : 0
         # Create the kernel
         _kernel = RocketKernel(
             _length,
@@ -56,10 +101,32 @@ function Rocket(input_length::Int64, n_kernels::Int64)
         push!(kernels, _kernel)
     end
 
-    Rocket(kernels)
+    RocketModule(kernels)
 end
 
-function apply_kernel(kernel::RocketKernel, x::Array)
+"""
+    RocketModule()
+
+Default constructor for the RocketModule object.
+"""
+function RocketModule()
+    return RocketModule(5, 100)
+end
+
+# -----------------------------------------------------------------------------
+# METHODS
+# -----------------------------------------------------------------------------
+
+"""
+    apply_kernel(kernel::RocketKernel, x::RealVector)
+
+Apply a single RocketModule kernel to the sequence x.
+
+# Arguments
+- `kernel::RocketKernel`: rocket kernel used for computing features.
+- `x::RealVector`: data sequence for computing rocket features.
+"""
+function apply_kernel(kernel::RocketKernel, x::RealVector)
     input_length = length(x)
     output_length = (input_length + (2 * kernel.padding)) - ((kernel.length - 1) * kernel.dilation)
     _ppv = 0
@@ -80,9 +147,18 @@ function apply_kernel(kernel::RocketKernel, x::Array)
         end
     end
     return [_ppv / output_length, _max]
-end
+end # apply_kernel(kernel::RocketKernel, x::RealVector)
 
-function apply_kernels(rocket::Rocket, x::Vector)
+"""
+    apply_kernels(rocket::RocketModule, x::RealVector)
+
+Run a vector of rocket kernels along a sequence x.
+
+# Arguments
+- `rocket::RocketModule`: rocket module containing many kernels for processing.
+- `x::RealVector`: data sequence for computing rocket features.
+"""
+function apply_kernels(rocket::RocketModule, x::RealVector)
     # Get the number of kernels for preallocation and iteration
     n_kernels = length(rocket.kernels)
 
@@ -96,55 +172,50 @@ function apply_kernels(rocket::Rocket, x::Vector)
 
     # Return the full features array
     return features
+end # apply_kernels(rocket::RocketModule, x::RealVector)
+
+"""
+    save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
+
+Save the rocket parameters to a .jld2 file.
+
+# Arguments
+`rocket::RocketModule`: rocket module to save.
+`filepath::String`: path to .jld2 for saving rocket parameters. Defaults to rocket.jld2.
+"""
+function save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
+    # Use the JLD2 save_object for simplicity
+    save_object(filepath, rocket)
+end # save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
+
+"""
+    load_rocket(filepath::String="rocket.jld2")
+
+Load and return a rocket module with existing parameters from a .jld2 file.
+
+# Arguments
+`filepath::String`: path to .jld2 containing rocket parameters. Defaults to rocket.jld2.
+"""
+function load_rocket(filepath::String="rocket.jld2")
+    # Use the JLD2 load_object for simplicity
+    return load_object(filepath)
+end # load_rocket(filepath::String="rocket.jld2")
+
+# -----------------------------------------------------------------------------
+# EXPORTS
+# -----------------------------------------------------------------------------
+
+# Export relevant names
+export
+
+    # Structs
+    RocketKernel,
+    RocketModule,
+
+    # Methods
+    apply_kernel,
+    apply_kernels,
+    load_rocket,
+    save_rocket
+
 end
-
-# mutable struct Rocket
-#     weights::Vector{Vector{Float64}}
-#     lengths::Vector{Int64}
-#     biases::Vector{Float64}
-#     dilations::Vector{Int64}
-#     paddings::Vector{Int64}
-# end
-
-# # function generate_kernels(input_length::Int64, num_kernels::Int64)
-# function Rocket(input_length::Int64, num_kernels::Int64)
-#     candidate_lengths = [7, 9, 11]
-#     lengths = sample(candidate_lengths, num_kernels)
-
-#     # weights = zeros(Float64, sum(lengths))
-#     weights = Vector{Vector{Float64}}()
-#     for i = 1:length(lengths)
-#         push!(weights, zeros(Float64, lengths[i]))
-#     end
-#     biases = zeros(Float64, num_kernels)
-#     dilations = zeros(Int64, num_kernels)
-#     paddings = zeros(Int64, num_kernels)
-
-#     for i = 1:num_kernels
-#         _length = lengths[i]
-#         weights[i] = randn(_length)
-#         biases[i] = rand()*2 - 1
-#         _dilation = Int64(floor(rand() * log2((input_length - 1) / (_length - 1))))
-#         dilations[i] = _dilation
-#         paddings[i] = Bool(rand(0:1)) ? Int64(floor(((_length - 1) * _dilation) / 2)) : 0
-#     end
-
-#     Rocket(
-#         weights,
-#         lengths,
-#         biases,
-#         dilations,
-#         paddings
-#     )
-# end
-
-# function apply_kernel(rocket::Rocket, x::Array, i::Int64)
-#     input_length = length(x)
-#     output_length = (input_length + (2 * rocket.paddings[i])) - ((rocket.lengths[i] - 1) * dilation)
-#     _ppv = 0
-#     _max = -Inf
-#     ending = (input_length + rocket.paddings[i]) - ((rocket.lengths[i] - 1) * rocket.dilations[i])
-#     for i = -rocket.paddings[i]:ending
-#         _sum = rocket.biases[i]
-#     end
-# end

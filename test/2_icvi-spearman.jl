@@ -1,24 +1,24 @@
-using Revise
 using StatsBase
-using AdaptiveResonance
 using ClusterValidityIndices
-using DrWatson
 using Logging
 using Plots
 
 # Plotting options
-dpi = 300       # Plotting dots-per-inch
 theme(:dark)    # Plotting style
-gr()            # GR backend (default for Plots.jl)
+dpi = 300       # Plotting dots-per-inch
+# gr()            # GR backend (default for Plots.jl)
+unicodeplots()
 
 # Include the library definitions
-include(projectdir("julia/lib_sim.jl"))
+# include(projectdir("julia/lib_sim.jl"))
 
 # Set the logging level to Info and standardize the random seed
 LogLevel(Logging.Info)
-Random.seed!(0)
-data_dir(args...) = projectdir("work/data/meta_icvi", args...)
-results_dir(args...) = projectdir("work/results/meta_icvi", args...)
+# Random.seed!(0)
+# data_dir(args...) = projectdir("work/data/meta_icvi", args...)
+# results_dir(args...) = projectdir("work/results/meta_icvi", args...)
+data_dir(args...) = joinpath("../data/training", args...)
+results_dir(args...) = joinpath("../data/results", args...)
 
 # Setup the data
 data_paths = [
@@ -87,5 +87,7 @@ ylabel!("Spearman")
 # ylims!(0, Inf)
 
 # Save and show the plot
-png(p, results_dir("2_correlation_partition"))
+# png(p, results_dir("2_correlation_partition"))
 display(p)
+dest_file = results_dir("2_correlation_partition.txt")
+savefig(p, dest_file)

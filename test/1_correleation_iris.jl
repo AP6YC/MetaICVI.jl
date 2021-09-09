@@ -1,32 +1,35 @@
 using StatsBase
 using AdaptiveResonance
 using ClusterValidityIndices
-using DrWatson
 using Logging
-
 using Plots
+using Random
 
 # Plotting options
-dpi = 300       # Plotting dots-per-inch
 theme(:dark)    # Plotting style
-gr()            # GR backend (default for Plots.jl)
+dpi = 300       # Plotting dots-per-inch
+# gr()            # GR backend (default for Plots.jl)
+unicodeplots()
 
 # Parameters
 n = 5                           # Window size
 
 # Include the library definitions
-include(projectdir("julia/lib_sim.jl"))
+# include(projectdir("julia/lib_sim.jl"))
+include("test_utils.jl")
 
 # Set the logging level to Info and standardize the random seed
 LogLevel(Logging.Info)
 Random.seed!(0)
-data_dir(args...) = projectdir("work/data/meta_icvi", args...)
-results_dir(args...) = projectdir("work/results/meta_icvi", args...)
+# data_dir(args...) = projectdir("work/data/meta_icvi", args...)
+# results_dir(args...) = projectdir("work/results/meta_icvi", args...)
+data_dir(args...) = joinpath("../data/testing", args...)
+results_dir(args...) = joinpath("../data/results", args...)
 
 # Load the data and test across all supervised modules
 data = load_iris(data_dir("Iris.csv"))
-# data.train_x = convert(Array{Real, 2}, data.train_x)
-# data.train_y = convert(Array{Int64, 1}, data.train_y)
+data.train_x = convert(Array{Float64, 2}, data.train_x)
+data.train_y = convert(Array{Int64, 1}, data.train_y)
 
 # data.train_x, data.train_y = sort_cvi_data(convert(Matrix{Real}, data.train_x), data.train_y)
 data.test_x, data.test_y = sort_cvi_data(convert(Matrix{Real},data.test_x), data.test_y)
@@ -38,9 +41,9 @@ art = DDVFA()
 # data_setup!(art.config, data.train_x)
 
 # Get the dimension and size of the data
-dim, n_samples = get_data_shape(data.train_x)
+dim, n_samples = AdaptiveResonance.get_data_shape(data.train_x)
 y_hat_train = zeros(Int64, n_samples)
-_, n_samples_test = get_data_shape(data.test_x)
+_, n_samples_test = AdaptiveResonance.get_data_shape(data.test_x)
 y_hat = zeros(Int64, n_samples_test)
 
 # Create the CVIs
@@ -62,14 +65,14 @@ criterion_values_test = zeros(n_samples_test, n_cvis)
 labels_ordered = relabel_cvi_data(y_hat_train)
 labels_ordered_test = relabel_cvi_data(y_hat)
 for i = 1:n_samples
-    sample = convert(Array{Real, 1}, data.train_x[:, i])
+    sample = convert(Array{Float64, 1}, data.train_x[:, i])
     label = labels_ordered[i]
     for j = 1:n_cvis
         criterion_values[i, j] = get_icvi!(cvis[j], sample, label)
     end
 end
 for i = 1:n_samples_test
-    sample = convert(Array{Real, 1}, data.test_x[:, i])
+    sample = convert(Array{Float64, 1}, data.test_x[:, i])
     label = labels_ordered_test[i]
     for j = 1:n_cvis
         criterion_values_test[i, j] = get_icvi!(cvis_test[j], sample, label)
@@ -118,7 +121,7 @@ l = @layout [a; b]
 pt = plot(p, g, layout = l, size=(800,500))
 
 # Save and show the plot
-png(pt, results_dir("1_correlation_iris"))
+# png(pt, results_dir("1_correlation_iris"))
 display(pt)
 
 # xlims!(1, n_corr)

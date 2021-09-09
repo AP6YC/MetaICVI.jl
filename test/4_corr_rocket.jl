@@ -1,25 +1,27 @@
-using Revise
 using StatsBase
-using AdaptiveResonance
 using ClusterValidityIndices
-using DrWatson
 using Logging
 using Plots
+using MetaICVI
+using Random
 
 # Plotting options
 dpi = 300       # Plotting dots-per-inch
 theme(:dark)    # Plotting style
-gr()            # GR backend (default for Plots.jl)
+# gr()            # GR backend (default for Plots.jl)
+unicodeplots()
 
 # Include the library definitions
-include(projectdir("julia/lib_sim.jl"))
-include("rocket.jl")
+# include(projectdir("julia/lib_sim.jl"))
+# include("rocket.jl")
 
 # Set the logging level to Info and standardize the random seed
 LogLevel(Logging.Info)
 Random.seed!(0)
-data_dir(args...) = projectdir("work/data/meta_icvi", args...)
-results_dir(args...) = projectdir("work/results/meta_icvi", args...)
+# data_dir(args...) = projectdir("work/data/meta_icvi", args...)
+# results_dir(args...) = projectdir("work/results/meta_icvi", args...)
+data_dir(args...) = joinpath("../data/training", args...)
+results_dir(args...) = joinpath("../data/results", args...)
 
 # Setup the data
 data_paths = [
@@ -89,7 +91,7 @@ iter_rocket = n + n_window:n_samples
 @info n_rocket
 @info iter_rocket
 
-rocket = Rocket(n_window, n_kernels)
+rocket = RocketModule(n_window, n_kernels)
 for dx = 1:n_data
     # for i = iter_rocket
     for i = 1:size(corrs)[1]
@@ -138,5 +140,5 @@ l = @layout [a; b; c]
 pt = plot(p, g, h, layout = l, size=(800,500))
 
 # Save and show the plot
-png(pt, results_dir("4_corr_rocket"))
+# png(pt, results_dir("4_corr_rocket"))
 display(pt)
