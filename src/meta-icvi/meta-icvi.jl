@@ -11,10 +11,8 @@ using JLD
 using PyCallJLD
 using PyCall
 using ScikitLearn
-# using ScikitLearn: fit!, score, predict, @sk_import
-# # @sk_import linear_model:RidgeClassifier
-# @sk_import linear_model:RidgeClassifier
-# classifier = RidgeClassifier()
+# using BSON
+# using ScikitLearn.Skcore: FitBit
 
 # Custom libraries
 
@@ -25,6 +23,13 @@ using ClusterValidityIndices
 # Get the rocket kernel definitions
 include("rocket.jl")
 using .Rocket
+
+# -----------------------------------------------------------------------------
+# CONSTANTS
+# -----------------------------------------------------------------------------
+
+# const MetaICVIClassifier = ScikitLearn.Skcore.FitBit
+const MetaICVIClassifier = PyCall.PyObject
 
 # -----------------------------------------------------------------------------
 # STRUCTURES
@@ -41,6 +46,10 @@ julia> MetaICVIOpts()
 ```
 """
 @with_kw mutable struct MetaICVIOpts @deftype Int
+    # Which scikitlearn classifier to load
+    classifier_selection::Symbol = :SGDClassifier
+    # Scikitlearn classifier keyword arguments
+    classifier_opts::NamedTuple = (loss="log", max_iter=30)
     # Size of ICVI window: [1, infty)
     icvi_window = 5; @assert icvi_window >= 1
     # Size of correlation window: [1, infty)
@@ -69,8 +78,9 @@ Stateful information for a single MetaICVI module.
 - `correlations::RealVector`: list of outputs of the rank correlations.
 - `features::RealVector`: list of outputs of the rocket feature kernels.
 - `rocket::RocketModule`: time-series random feature kernels module.
-- `classifier::PyCall.PyObject`: ScikitLearn classifier.
+- `classifier::MetaICVIClassifier`: ScikitLearn classifier.
 - `performance::RealFP`: final output of the most recent the Meta-ICVI step.
+- `is_pretrained::Bool`: internal flag for if the classifier is trained and ready for inference.
 """
 mutable struct MetaICVIModule
     opts::MetaICVIOpts
@@ -79,8 +89,9 @@ mutable struct MetaICVIModule
     correlations::RealVector
     features::RealVector
     rocket::RocketModule
-    classifier::PyCall.PyObject
+    classifier::MetaICVIClassifier
     performance::RealFP
+    is_pretrained::Bool
 end # MetaICVIModule
 
 """
@@ -92,6 +103,9 @@ Instantiate a MetaICVIModule with given options.
 - `opts::MetaICVIOpts`: options struct for the MetaICVI object.
 """
 function MetaICVIModule(opts::MetaICVIOpts)
+    # Load the correct classifier from the opts
+    @eval @sk_import linear_model: $(opts.classifier_selection)
+
     # Construct the CVIs
     cvis = [
         PS(),
@@ -108,14 +122,9 @@ function MetaICVIModule(opts::MetaICVIOpts)
         rocket_module = load_rocket(opts.rocket_file)
     else
         # Otherwise, construct a module
+        @warn "Missing/incorrect path for the rocket module file."
+        @info "Constructing a new rocket module"
         rocket_module = RocketModule(opts.correlation_window, opts.n_rocket)
-        @warn "Missing/incorrect path for the rocket module file. \n\t Constructing a new rocket module"
-        # If we specified a file but none was there, then save to that file
-        if !isempty(opts.rocket_file)
-            save_rocket(rocket_module, opts.rocket_file)
-        else
-            error("No filename provided for rocket file saving/loading.")
-        end
     end
 
     # Load the classifier
@@ -123,6 +132,7 @@ function MetaICVIModule(opts::MetaICVIOpts)
         @info "Loading classifier: $(opts.classifier_file)"
         # classifier = JLD.load(opts.classifier_file, "learner")
         classifier = load_classifier(opts.classifier_file)
+        is_pretrained = true
     # If we didn't get a valid file, check for errors or construct a new object
     else
         error_msg = "Missing/incorrect path for pretrained classifier file."
@@ -134,9 +144,8 @@ function MetaICVIModule(opts::MetaICVIOpts)
             # If a file is even provided, construct a classifier
             if !isempty(opts.classifier_file)
                 @warn error_msg
-                @info "Constructing a new classifier."
-                classifier = RidgeClassifier()
-                save_classifier(classifier, opts.classifier_file)
+                classifier = construct_classifier(opts)
+                is_pretrained = false
             # Otherwise, throw an error that no filename is provided
             else
                 error("No filename provided for classifier saving/loading.")
@@ -153,7 +162,8 @@ function MetaICVIModule(opts::MetaICVIOpts)
         Array{RealFP}(undef, 0),    # features
         rocket_module,              # rocket
         classifier,                 # classifier
-        0.0                         # performance
+        0.0,                        # performance
+        is_pretrained               # is_pretrained
     )
 end # MetaICVIModule(opts::MetaICVIOpts)
 
@@ -174,29 +184,115 @@ end # MetaICVIModule()
 # -----------------------------------------------------------------------------
 
 """
+    Base.show(io::IO, metaicvi::MetaICVIModule)
+
+Display a metaicvi module to the command line.
+
+# Arguments
+- `io::IO`: default io stream.
+- `metaicvi::MetaICVIModule`: metaicvi object about which to display info.
+"""
+function Base.show(io::IO, metaicvi::MetaICVIModule)
+    compact = get(io, :compact, false)
+    if compact
+        # print(metaicvi.opts)
+        print("MetaICVIModule")
+    else
+        # show(io, metaicvi.opts)
+        pretrain_display_flag = MetaICVI.is_pretrained(metaicvi)
+        opts = metaicvi.opts
+        print(
+            """
+            MetaICVIModule:
+            \tperformance: $(metaicvi.performance)
+            \tpretrained: $pretrain_display_flag
+            Options:
+            \tclassifier: $(opts.classifier_selection)
+            \tclassifier_opts: $(opts.classifier_opts)
+            \ticvi_window: $(opts.icvi_window)
+            \tcorrelation_window: $(opts.correlation_window)
+            \tn_rocket: $(opts.n_rocket)
+            \trocket_file: $(opts.rocket_file)
+            \tclassifier_file: $(opts.classifier_file)
+            Flags:
+            \tdisplay: $(opts.display)
+            \tfail_on_missing: $(opts.display)
+            """
+        )
+    end
+end # Base.show(io::IO, metaicvi::MetaICVIModule)
+
+"""
+    construct_classifier(opts::MetaICVIOpts)
+"""
+function construct_classifier(opts::MetaICVIOpts)
+    @info "Constructing a new classifier"
+    @eval classifier = $(opts.classifier_selection)(;$(opts.classifier_opts)...)
+    return MetaICVIClassifier(classifier)
+end # construct_classifier(opts::MetaICVIOpts)
+
+"""
+    safe_save_classifier(metaicvi::MetaICVIModule)
+
+Error handle saving of the metaicvi classifier.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: metaicvi module containing the classifier and path for saving.
+"""
+function safe_save_classifier(metaicvi::MetaICVIModule)
+    # If we specified a file but none was there, then save to that file
+    if !isempty(metaicvi.opts.classifier_file)
+        @info "Saving trained classifier"
+        save_classifier(metaicvi.classifier, metaicvi.opts.classifier_file)
+    else
+        error("No filename provided for classifier file saving/loading.")
+    end
+end # safe_save_classifier(metaicvi::MetaICVIModule)
+
+"""
+    safe_save_rocket(metaicvi::MetaICVIModule)
+
+Error handle saving of the metaicvi rocket kernels.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: metaicvi module containing the classifier and path for saving.
+"""
+function safe_save_rocket(metaicvi::MetaICVIModule)
+    # If we specified a file but none was there, then save to that file
+    if !isempty(metaicvi.opts.rocket_file)
+        @info "Saving current rocket kernels"
+        save_rocket(metaicvi.rocket, metaicvi.opts.rocket_file)
+    else
+        error("No filename provided for rocket file saving/loading.")
+    end
+end # safe_save_rocket(metaicvi::MetaICVIModule)
+
+"""
     load_classifier(filepath::String)
 
 Load the classifier at the filepath.
 
 # Arguments
-`filepath::String`: location of the classifier .jld file.
+- `filepath::String`: location of the classifier .jld file.
 """
 function load_classifier(filepath::String)
-    return JLD.load(filepath, "classifier")
+    return MetaICVIClassifier(JLD.load(filepath, "classifier"))
+    # return BSON.load(filepath, @__MODULE__)["classifier"]
 end # load_classifier(filepath::String)
 
 """
-    save_classifier(classifier::PyCall.PyObject, filepath::String)
+    save_classifier(classifier::MetaICVIClassifier, filepath::String)
 
 Save the classifier at the filepath.
 
 # Arguments
-`classifier::PyCall.PyObject`: classifier object to save.
-`filepath::String`: name/path to save the classifier .jld file.
+- `classifier::MetaICVIClassifier`: classifier object to save.
+- `filepath::String`: name/path to save the classifier .jld file.
 """
-function save_classifier(classifier::PyCall.PyObject, filepath::String)
+function save_classifier(classifier::MetaICVIClassifier, filepath::String)
     JLD.save(filepath, "classifier", classifier)
-end # save_classifier(classifier::PyCall.PyObject, filepath::String)
+    # bson(filepath, Dict("classifier" => classifier))
+end # save_classifier(classifier::MetaICVIClassifier, filepath::String)
 
 """
     train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
@@ -204,21 +300,23 @@ end # save_classifier(classifier::PyCall.PyObject, filepath::String)
 Train the classifier on x/y and save the kernels and classifier.
 
 # Arguments
-`metaicvi::MetaICVIModule`: metaicvi module to save with.
-`x::RealMatrix`: features to train on.
-`y::IntegerVector`: correct/over/under partition targets.
+- `metaicvi::MetaICVIModule`: metaicvi module to save with.
+- `x::RealMatrix`: features to train on.
+- `y::IntegerVector`: correct/over/under partition targets.
 """
 function train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
     # Create a new classifier
     # TODO: option to train/retrain loaded/serialized models
-    metaicvi.classifier = RidgeClassifier()
+    classifier = construct_classifier(metaicvi.opts)
+    metaicvi.classifier = classifier
     # Train the classifier
+    @info "Training classifier"
     fit!(metaicvi.classifier, x, y)
     # Save the rocket kernels used
-    save_rocket(metaicvi.rocket, metaicvi.opts.rocket_file)
+    safe_save_rocket(metaicvi)
     # Save the classifier used
-    save_classifier(metaicvi.classifier, metaicvi.opts.classifier_file)
-end
+    safe_save_classifier(metaicvi)
+end # train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
 
 """
     get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
@@ -278,12 +376,44 @@ function get_rocket_features(metaicvi::MetaICVIModule)
     # If there are enough correlations, compute compute the meta-icvi value
     if length(metaicvi.correlations) >= metaicvi.opts.correlation_window
         metaicvi.features = apply_kernels(metaicvi.rocket, metaicvi.correlations)[:, 1]
-        # TODO
-        metaicvi.performance = 0.0
     else
         metaicvi.features = zeros(metaicvi.opts.n_rocket)
     end
 end # get_rocket_features(metaicvi::MetaICVIModule)
+
+"""
+    is_pretrained(metaicvi::MetaICVIModule)
+
+Checks if the classifier is pretrained to permit inference.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: metaicvi module containing the classifier to check.
+"""
+function is_pretrained(metaicvi::MetaICVIModule)
+    # Check if the model is pretrained with the isfit function
+    # return ScikitLearn.Utils.isfit(metaicvi.classifier)
+    return metaicvi.is_pretrained
+end # is_pretrained(metaicvi::MetaICVIModule)
+
+"""
+    get_probability(metaicvi::MetaICVIModule)
+
+Compute and store the metaicvi value from the classifier.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: the Meta-ICVI module.
+"""
+function get_probability(metaicvi::MetaICVIModule)
+    # If we have previously computed features
+    if !isempty(metaicvi.features) && is_pretrained(metaicvi)
+        # Compute the class 'probabilities'
+        probs = predict_proba(metaicvi.classifier, [metaicvi.features])
+        # Store only the probability of correct partitioning
+        metaicvi.performance = probs[1]
+    else
+        metaicvi.performance = 0.0
+    end
+end # get_probability(metaicvi::MetaICVIModule)
 
 """
     get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
@@ -296,8 +426,8 @@ Compute and return the meta-icvi value.
 - `label::Integer`: the label prescribed to the sample by the clustering algorithm.
 """
 function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
-    # If the sample was not misclassified and we have a big enough window
-    if label != -1 && label > 0
+    # If the sample was not misclassified
+    if label > 0
         # Compute the icvi values
         get_icvis(metaicvi, sample, label)
 
@@ -306,6 +436,9 @@ function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integ
 
         # Compute the rocket features
         get_rocket_features(metaicvi)
+
+        # Compute and store the
+        get_probability(metaicvi)
     else
         # Default to 0
         metaicvi.performance = 0.0

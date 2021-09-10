@@ -1,8 +1,10 @@
 using MetaICVI
 # using ScikitLearn: fit!, score, @sk_import
-using ScikitLearn: fit!, score
+# using ScikitLearn: fit!, score
 using ScikitLearn.CrossValidation: train_test_split
-
+using ScikitLearn
+using ProgressMeter
+using PyCallJLD
 # @sk_import linear_model:RidgeClassifier
 # learner = RidgeClassifier()
 
@@ -10,16 +12,16 @@ using ScikitLearn.CrossValidation: train_test_split
 include("../test/test_utils.jl")
 
 # Identify the rocket file
-rocket_file = "data/models/rocket.jld2"
-classifier_file = "data/models/classifier.jld"
+# rocket_file = "data/models/rocket.jld2"
+# classifier_file = "data/models/classifier.jld"
 
 # Point to data
 data_dir(args...) = joinpath("data/training", args...)
 
 # Create the options
 opts = MetaICVIOpts(
-    rocket_file = rocket_file,
-    classifier_file = classifier_file,
+    # rocket_file = rocket_file,
+    # classifier_file = classifier_file,
     n_rocket = 20
 )
 
@@ -63,7 +65,7 @@ type_to_num = Dict(
 
 # Itereate over all data to get features
 for (type, subdata) in data
-    for i = 1:length(subdata["y"])
+    @showprogress for i = 1:length(subdata["y"])
         # Extract the sample and label
         sample = subdata["x"][:, i]
         label = subdata["y"][i]

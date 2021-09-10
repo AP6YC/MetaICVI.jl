@@ -9,6 +9,7 @@ include("test_utils.jl")
 end
 
 @testset "0: Module" begin
+    using PyCallJLD
     # Create the module
     opts = MetaICVIOpts(
         rocket_file = "../data/models/rocket.jld2",
@@ -17,6 +18,8 @@ end
     )
     metaicvi = MetaICVIModule(opts)
     @info fieldnames(typeof(metaicvi))
+    @info metaicvi
+    @info metaicvi.classifier
 
     # Point to the correct data directories
     data_dir(args...) = joinpath("../data/testing", args...)
@@ -30,7 +33,7 @@ end
     for i = 1:length(data.train_y)
         sample = data.train_x[:, i]
         label = data.train_y[i]
-        performance = get_metaicvi(metaicvi, sample, label)
+        # performance = get_metaicvi(metaicvi, sample, label)
     end
 end
 
