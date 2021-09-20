@@ -85,7 +85,6 @@ Please raise an [issue][issues-url].
 ### Authors
 
 - Sasha Petrenko <sap625@mst.edu>
-- Andrew Brna <andrew.brna@teledyne.com>
 
 ### License
 

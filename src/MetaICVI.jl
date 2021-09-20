@@ -37,7 +37,9 @@ export
     MetaICVIOpts,
 
     # Methods
-    get_metaicvi,
+    get_metaicvi,           # Compute features and "performance"
+    get_features,           # Convenience function for just features
+    get_training_features,  # Load data and process features for classifier training
     train_and_save
 
 end

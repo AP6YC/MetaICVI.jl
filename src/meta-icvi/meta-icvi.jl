@@ -3,23 +3,22 @@
 # -----------------------------------------------------------------------------
 
 # External libraries
-
-using Logging
-using Parameters
-using StatsBase: corspearman
-using JLD
-using PyCallJLD
-using PyCall
-using ScikitLearn
+using Logging                       # Logging is used for operation diagnostics
+using Parameters                    # MetaICVIOpts are Parameters structs
+using StatsBase: corspearman        # Rank correlation for cvi criterion values
+using JLD                           # JLD is currently recommended for saving/loading ScikitLearn objects
+using PyCallJLD                     # PyCall definition for serialization with JLD
+using PyCall                        # PyCall object definition
+using ScikitLearn                   # Classifiers are scikit-learn pyobjects
+using ProgressMeter: @showprogress  # Data loading progress for training
+using DelimitedFiles: readdlm       # Loading cvi data
 # using BSON
 # using ScikitLearn.Skcore: FitBit
 
 # Custom libraries
-
-using ClusterValidityIndices
+using ClusterValidityIndices        # All Julia-implemented CVI definitions
 
 # Local libraries
-
 # Get the rocket kernel definitions
 include("rocket.jl")
 using .Rocket
@@ -91,6 +90,7 @@ mutable struct MetaICVIModule
     rocket::RocketModule
     classifier::MetaICVIClassifier
     performance::RealFP
+    probabilities::RealVector
     is_pretrained::Bool
 end # MetaICVIModule
 
@@ -163,6 +163,7 @@ function MetaICVIModule(opts::MetaICVIOpts)
         rocket_module,              # rocket
         classifier,                 # classifier
         0.0,                        # performance
+        zeros(3),                   # probabilities
         is_pretrained               # is_pretrained
     )
 end # MetaICVIModule(opts::MetaICVIOpts)
@@ -224,6 +225,11 @@ end # Base.show(io::IO, metaicvi::MetaICVIModule)
 
 """
     construct_classifier(opts::MetaICVIOpts)
+
+Construct a new classifier for the MetaICVI module with metaprogramming.
+
+# Arguments
+- `opts::MetaICVIOpts`: options containing the classifier type and options for instantiation.
 """
 function construct_classifier(opts::MetaICVIOpts)
     @info "Constructing a new classifier"
@@ -309,9 +315,12 @@ function train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVecto
     # TODO: option to train/retrain loaded/serialized models
     classifier = construct_classifier(metaicvi.opts)
     metaicvi.classifier = classifier
+
     # Train the classifier
     @info "Training classifier"
     fit!(metaicvi.classifier, x, y)
+    metaicvi.is_pretrained = true
+
     # Save the rocket kernels used
     safe_save_rocket(metaicvi)
     # Save the classifier used
@@ -407,13 +416,36 @@ function get_probability(metaicvi::MetaICVIModule)
     # If we have previously computed features
     if !isempty(metaicvi.features) && is_pretrained(metaicvi)
         # Compute the class 'probabilities'
-        probs = predict_proba(metaicvi.classifier, [metaicvi.features])
+        probs = predict_proba(metaicvi.classifier, transpose([metaicvi.features]))
+        metaicvi.probabilities = probs[:]
+
         # Store only the probability of correct partitioning
         metaicvi.performance = probs[1]
     else
         metaicvi.performance = 0.0
     end
 end # get_probability(metaicvi::MetaICVIModule)
+
+"""
+    get_features(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
+
+Compute only the features on the sample and label without classifier inference.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: the Meta-ICVI module.
+- `sample::RealVector`: the sample used for clustering.
+- `label::Integer`: the label prescribed to the sample by the clustering algorithm.
+"""
+function get_features(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
+    # Compute the icvi values
+    get_icvis(metaicvi, sample, label)
+
+    # Compute the rank correlations
+    get_correlations(metaicvi)
+
+    # Compute the rocket features
+    get_rocket_features(metaicvi)
+end # get_features(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
 
 """
     get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
@@ -428,14 +460,8 @@ Compute and return the meta-icvi value.
 function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
     # If the sample was not misclassified
     if label > 0
-        # Compute the icvi values
-        get_icvis(metaicvi, sample, label)
-
-        # Compute the rank correlations
-        get_correlations(metaicvi)
-
         # Compute the rocket features
-        get_rocket_features(metaicvi)
+        get_features(metaicvi, sample, label)
 
         # Compute and store the
         get_probability(metaicvi)
@@ -446,3 +472,89 @@ function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integ
 
     return metaicvi.performance
 end # get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
+
+"""
+    get_cvi_data(data_file::String)
+
+Get the cvi data specified by the data_file path.
+
+# Arguments
+- `data_file::String`: file containing clustered data for cvi processing.
+"""
+function get_cvi_data(data_file::String)
+    # Parse the data
+    data = readdlm(data_file, ',')
+    data = permutedims(data)
+    train_x = convert(Matrix{Float64}, data[1:2, :])
+    train_y = convert(Vector{Integer}, data[3, :])
+
+    return train_x, train_y
+end # get_cvi_data(data_file::String)
+
+"""
+    get_training_features(metaicvi, data_dir)
+"""
+function get_training_features(metaicvi::MetaICVIModule, data_path::String)
+    # Point to data
+    data_dir(args...) = joinpath(data_path, args...)
+
+    # Load the data
+    correct_x, correct_y = get_cvi_data(data_dir("correct_partition.csv"))
+    under_x, under_y = get_cvi_data(data_dir("under_partition.csv"))
+    over_x, over_y = get_cvi_data(data_dir("over_partition.csv"))
+
+    # Package the data conveniently
+    data = Dict(
+        "correct" => Dict(
+            "x" => correct_x,
+            "y" => correct_y
+        ),
+        "under" => Dict(
+            "x" => under_x,
+            "y" => under_y
+        ),
+        "over" => Dict(
+            "x" => over_x,
+            "y" => over_y
+        )
+    )
+
+    # Create the target containers
+    data_lengths = [length(correct_y), length(under_y), length(over_y)]
+    offset_lengths = [0, length(correct_y), length(under_y)]
+    data_length = sum(data_lengths)
+    features_data = zeros(metaicvi.opts.n_rocket, data_length)
+    features_targets = zeros(Int, data_length)
+
+    # Mapping of datatype to numeral target for classification
+    type_to_num = Dict(
+        "correct" => 1,
+        "under" => 2,
+        "over" => 3
+    )
+
+    # Itereate over all data to get features
+    # performances = zeros(data_length)
+    for (type, subdata) in data
+        # Get the offset directly from the type mapping and explicit definition
+        data_offset = offset_lengths[type_to_num[type]]
+
+        @showprogress for i = 1:length(subdata["y"])
+
+            # Extract the sample and label
+            sample = subdata["x"][:, i]
+            label = subdata["y"][i]
+
+            # Compute and retrieve the features
+            # performances[i + data_offset] = get_metaicvi(metaicvi, sample, label)
+            get_features(metaicvi, sample, label)
+            features = metaicvi.features
+
+            # Save the results
+            features_data[:, i + data_offset] = features
+            features_targets[i + data_offset] = type_to_num[type]
+        end
+    end
+
+    return features_data, features_targets
+end
