@@ -30,6 +30,9 @@ using .Rocket
 # const MetaICVIClassifier = ScikitLearn.Skcore.FitBit
 const MetaICVIClassifier = PyCall.PyObject
 
+# Top of the module for default paths
+const module_dir(paths...) = joinpath(dirname(pathof(@__MODULE__)), "..", paths...)
+
 # -----------------------------------------------------------------------------
 # STRUCTURES
 # -----------------------------------------------------------------------------
@@ -56,9 +59,13 @@ julia> MetaICVIOpts()
     # Number of rocket kernels: [1, infty)
     n_rocket = 5; @assert n_rocket >= 1
     # Rocket file location
-    rocket_file::String = "data/models/rocket.jld2"
+    # rocket_file::String = "data/models/rocket.jld2"
+    # rocket_file::String = joinpath(pathof(@__MODULE__), "data", "models", "rocket.jld2")
+    rocket_file::String = module_dir("data", "models", "rocket.jld2")
     # Classifier file location
-    classifier_file::String="data/models/classifier.jld"
+    # classifier_file::String="data/models/classifier.jld"
+    # classifier_file::String=joinpath(pathof(@__MODULE__), "data", "models", "classifier.jld")
+    classifier_file::String = module_dir("data", "models", "classifier.jld")
     # Display flag
     display::Bool = true
     # Flag to fail if any file is missing (rather than creating new objects)
@@ -492,7 +499,10 @@ function get_cvi_data(data_file::String)
 end # get_cvi_data(data_file::String)
 
 """
-    get_training_features(metaicvi, data_dir)
+    get_training_features(metaicvi::MetaICVIModule, data_path::String)
+
+# Arguments
+
 """
 function get_training_features(metaicvi::MetaICVIModule, data_path::String)
     # Point to data
@@ -534,19 +544,17 @@ function get_training_features(metaicvi::MetaICVIModule, data_path::String)
     )
 
     # Itereate over all data to get features
-    # performances = zeros(data_length)
     for (type, subdata) in data
         # Get the offset directly from the type mapping and explicit definition
         data_offset = offset_lengths[type_to_num[type]]
 
+        # Iterate over all entries of the type of partitioning (i.e., correct, under, and over)
         @showprogress for i = 1:length(subdata["y"])
-
             # Extract the sample and label
             sample = subdata["x"][:, i]
             label = subdata["y"][i]
 
             # Compute and retrieve the features
-            # performances[i + data_offset] = get_metaicvi(metaicvi, sample, label)
             get_features(metaicvi, sample, label)
             features = metaicvi.features
 
@@ -557,4 +565,4 @@ function get_training_features(metaicvi::MetaICVIModule, data_path::String)
     end
 
     return features_data, features_targets
-end
+end # get_training_features(metaicvi::MetaICVIModule, data_path::String)
