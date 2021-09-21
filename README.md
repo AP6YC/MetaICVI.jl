@@ -25,6 +25,7 @@ A Julia implementation of the Meta-ICVI method as a separate package.
 - [MetaICVI](#metaicvi)
   - [Table of Contents](#table-of-contents)
   - [Usage](#usage)
+    - [Installation](#installation)
     - [Basic Usage](#basic-usage)
     - [Advanced Usage](#advanced-usage)
   - [Contributing](#contributing)
@@ -34,9 +35,49 @@ A Julia implementation of the Meta-ICVI method as a separate package.
 
 ## Usage
 
+### Installation
+
+You must install `PyCallJLD.jl` alongside `MetaICVI.jl` for correct classifier module loading and saving.
+This is because the `ScikitLearn.jl` dependency requires saving/loading with the `JLD.jl` package on `PyCall.jl` objects, and PyCallJLD correctly loads the serialized object definitions into the current workspace.
+Otherwise, the classifier is loaded a memory block wrapped in a PyObject type, breaking inference and other operations.
+
+`PyCallJLD.jl` is distributed as a Julia package, available on [JuliaHub](https://juliahub.com/).
+Its installation follows the usual Julia package installation procedure, interactively:
+
+```julia
+] add PyCallJLD
+```
+
+or programmatically:
+
+```julia
+using Pkg
+Pkg.add("PyCallJLD")
+```
+
+At the time of this writing, `MetaICVI.jl` is not released on JuliaHub.
+To install `MetaICVI.jl`, you may add the package directly from GitHub:
+
+```julia
+] add https://github.com/AP6YC/MetaICVI.jl
+```
+
+or programmatically, also with the GitHub link:
+
+```julia
+using Pkg
+Pkg.add("https://github.com/AP6YC/MetaICVI.jl")
+```
+
 ### Basic Usage
 
-Create a MetaICI module with the default constructor
+First, load both `PyCall` and `MetaICVI` with
+
+```julia
+using PyCall, MetaICVI
+```
+
+Then, create a MetaICVI module with the default constructor
 
 ```julia
     metaicvi = MetaICVIModule()
@@ -52,10 +93,18 @@ where `sample` is a real-valued vector and `label` is an integer.
 
 ### Advanced Usage
 
-You can specify the MetaICVI options with
+After loading both `PyCall` and `MetaICVI`
+
+```julia
+using PyCall, MetaICVI
+```
+
+you can specify the MetaICVI options with
 
 ```julia
     opts = MetaICVIOpts(
+        classifier_selection = :SGDClassifier,
+        classifier_opts = (loss="log", max_iter=30),
         icvi_window = 5,
         correlation_window = 5,
         n_rocket = 5,
@@ -69,6 +118,8 @@ You can specify the MetaICVI options with
 
 The options are
 
+- `classifier_selection`: a symbol for a linear classifier from `ScikitLearn.jl` (only used if you are creating and training a new classifier).
+- `classifier_opts`: the options passed to the classifier during instantiation (also only used if creating and training a new classifier).
 - `icvi_window`: the number of ICVI criterion values to compute rank correlation across.
 - `correlation_window`: the number of correlations to compute rocket features across.
 - `rocket_file`: filename of a saved RocketModule.

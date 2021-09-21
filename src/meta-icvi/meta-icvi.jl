@@ -59,12 +59,8 @@ julia> MetaICVIOpts()
     # Number of rocket kernels: [1, infty)
     n_rocket = 5; @assert n_rocket >= 1
     # Rocket file location
-    # rocket_file::String = "data/models/rocket.jld2"
-    # rocket_file::String = joinpath(pathof(@__MODULE__), "data", "models", "rocket.jld2")
     rocket_file::String = module_dir("data", "models", "rocket.jld2")
     # Classifier file location
-    # classifier_file::String="data/models/classifier.jld"
-    # classifier_file::String=joinpath(pathof(@__MODULE__), "data", "models", "classifier.jld")
     classifier_file::String = module_dir("data", "models", "classifier.jld")
     # Display flag
     display::Bool = true
@@ -127,6 +123,11 @@ function MetaICVIModule(opts::MetaICVIOpts)
         # If we have a file, load the module
         @info "Loading rocket kernels: $(opts.rocket_file)"
         rocket_module = load_rocket(opts.rocket_file)
+        # Correct the expected number of kernels if necessary
+        if opts.n_rocket != length(rocket_module.kernels)
+            @warn "Provided incorrect number of kernels with loaded file, correctiong MetaICVIModule options."
+            opts.n_rocket = length(rocket_module.kernels)
+        end
     else
         # Otherwise, construct a module
         @warn "Missing/incorrect path for the rocket module file."

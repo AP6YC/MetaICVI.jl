@@ -1,31 +1,23 @@
 # using PyCall
 # using JLD
-# using PyCallJLD
+using PyCallJLD
 using MetaICVI
 using ClusterValidityIndices
 using Test
-
 using Logging
 
-@info @__MODULE__
-# @info varinfo()
-
+# Include some test utilities (data loading, etc.)
 include("test_utils.jl")
 
+# MetaICVI module testing
 @testset "MetaICVI.jl" begin
-    # Write your tests here.
-end
-
-@testset "0: Module" begin
-    # using PyCallJLD
-    # using MetaICVI
     # Create the module
     opts = MetaICVIOpts(
-        # rocket_file = "../data/models/rocket.jld2",
-        # classifier_file = "../data/models/classifier.jld",
         fail_on_missing = true
     )
     metaicvi = MetaICVIModule(opts)
+
+    # Display some aspects of the module
     @info fieldnames(typeof(metaicvi))
     @info metaicvi
     @info metaicvi.classifier
@@ -39,19 +31,36 @@ end
     data.train_y = relabel_cvi_data(data.train_y)
 
     # Iterate over the data
-    for i = 1:length(data.train_y)
+    n_data = length(data.train_y)
+    performances = zeros(n_data)
+    for i = 1:n_data
         sample = data.train_x[:, i]
         label = data.train_y[i]
-        # performance = get_metaicvi(metaicvi, sample, label)
+        performances[i] = get_metaicvi(metaicvi, sample, label)
     end
+
+    # Perform some simple tests
+    @test all(performances .>= 0)
+    @test all(performances .<= 1)
 end
 
 # Rocket testing
 @testset "Rocket.jl" begin
     # Test saving and loading
     filepath = "my_rocket"
+
+    # Create the rocket module
     my_rocket = MetaICVI.Rocket.RocketModule()
+
+    # Save the module to the filepath
     MetaICVI.Rocket.save_rocket(my_rocket, filepath)
+
+    # Test that the file exists
+    @test isfile(filepath)
+
+    # Load the rocket module
     my_new_rocket = MetaICVI.Rocket.load_rocket(filepath)
+
+    # Delete the saved file
     rm(filepath)
 end
