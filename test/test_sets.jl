@@ -1,6 +1,14 @@
+# using PyCall
+# using JLD
+# using PyCallJLD
 using MetaICVI
 using ClusterValidityIndices
 using Test
+
+using Logging
+
+@info @__MODULE__
+# @info varinfo()
 
 include("test_utils.jl")
 
@@ -9,11 +17,12 @@ include("test_utils.jl")
 end
 
 @testset "0: Module" begin
-    using PyCallJLD
+    # using PyCallJLD
+    # using MetaICVI
     # Create the module
     opts = MetaICVIOpts(
-        rocket_file = "../data/models/rocket.jld2",
-        classifier_file = "../data/models/classifier.jld",
+        # rocket_file = "../data/models/rocket.jld2",
+        # classifier_file = "../data/models/classifier.jld",
         fail_on_missing = true
     )
     metaicvi = MetaICVIModule(opts)
@@ -37,6 +46,7 @@ end
     end
 end
 
+# Rocket testing
 @testset "Rocket.jl" begin
     # Test saving and loading
     filepath = "my_rocket"
@@ -45,19 +55,3 @@ end
     my_new_rocket = MetaICVI.Rocket.load_rocket(filepath)
     rm(filepath)
 end
-
-# @testset "1: Iris Training and Correlation" begin
-#     include("1_correleation_iris.jl")
-# end
-
-# @testset "2: ICVI-Spearman" begin
-#     include("2_icvi-spearman.jl")
-# end
-
-# @testset "3: Rocket Testing" begin
-#     include("3_rocket-dev.jl")
-# end
-
-# @testset "4: Rocket on Correlations" begin
-#     include("4_corr_rocket.jl")
-# end

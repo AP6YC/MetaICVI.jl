@@ -6,9 +6,9 @@
 using Logging                       # Logging is used for operation diagnostics
 using Parameters                    # MetaICVIOpts are Parameters structs
 using StatsBase: corspearman        # Rank correlation for cvi criterion values
+using PyCall                        # PyCall object definition
 using JLD                           # JLD is currently recommended for saving/loading ScikitLearn objects
 using PyCallJLD                     # PyCall definition for serialization with JLD
-using PyCall                        # PyCall object definition
 using ScikitLearn                   # Classifiers are scikit-learn pyobjects
 using ProgressMeter: @showprogress  # Data loading progress for training
 using DelimitedFiles: readdlm       # Loading cvi data

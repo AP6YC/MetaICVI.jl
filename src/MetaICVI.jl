@@ -14,6 +14,7 @@ module MetaICVI
 #     # @eval @sk_import linear_model:RidgeClassifier
 #     @eval @sk_import linear_model:SGDClassifier
     # @eval using PyCallJLD
+    # @eval @sk_import linear_model as lm
 # end
 
 # -----------------------------------------------------------------------------
