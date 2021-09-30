@@ -125,7 +125,7 @@ function MetaICVIModule(opts::MetaICVIOpts)
         rocket_module = load_rocket(opts.rocket_file)
         # Correct the expected number of kernels if necessary
         if opts.n_rocket != length(rocket_module.kernels)
-            @warn "Provided incorrect number of kernels with loaded file, correctiong MetaICVIModule options."
+            @warn "Provided incorrect number of kernels with loaded file, correcting MetaICVIModule options."
             opts.n_rocket = length(rocket_module.kernels)
         end
     else
