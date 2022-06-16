@@ -75,7 +75,7 @@ Stateful information for a single MetaICVI module.
 
 # Fields
 - `opts::MetaICVIOpts`: options for construction.
-- `cvis::Vector{AbstractCVI}`: list of cvis used for computing the CVIs.
+- `cvis::Vector{CVI}`: list of cvis used for computing the CVIs.
 - `criterion_values::RealVector`: list of outputs of the cvis used for computing correlations.
 - `correlations::RealVector`: list of outputs of the rank correlations.
 - `features::RealVector`: list of outputs of the rocket feature kernels.
@@ -86,7 +86,7 @@ Stateful information for a single MetaICVI module.
 """
 mutable struct MetaICVIModule
     opts::MetaICVIOpts
-    cvis::Vector{AbstractCVI}
+    cvis::Vector{CVI}
     criterion_values::Vector{RealVector}
     correlations::RealVector
     features::RealVector
