@@ -349,7 +349,7 @@ function get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
     # Update all of the cvis incrementally
     for ix = 1:length(metaicvi.cvis)
         # Compute and push the criterion value
-        value = get_icvi!(metaicvi.cvis[ix], sample, label)
+        value = get_cvi!(metaicvi.cvis[ix], sample, label)
         push!(metaicvi.criterion_values[ix], value)
         # FIFO the list to size
         while length(metaicvi.criterion_values[ix]) > metaicvi.opts.icvi_window

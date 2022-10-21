@@ -28,7 +28,7 @@ include("test_utils.jl")
 
     # Load the data and test across all supervised modules
     data = load_iris(data_dir("Iris.csv"))
-    data.train_y = relabel_cvi_data(data.train_y)
+    # data.train_y = relabel_cvi_data(data.train_y)
 
     # Iterate over the data
     n_data = length(data.train_y)
