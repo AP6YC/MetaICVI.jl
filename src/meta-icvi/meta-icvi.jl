@@ -48,25 +48,51 @@ julia> MetaICVIOpts()
 ```
 """
 @with_kw mutable struct MetaICVIOpts @deftype Int
-    # Which scikitlearn classifier to load
+    """
+    Which scikitlearn classifier to load.
+    """
     classifier_selection::Symbol = :SGDClassifier
-    # Scikitlearn classifier keyword arguments
+
+    """
+    Scikitlearn classifier keyword arguments.
+    """
     classifier_opts::NamedTuple = (loss="log", max_iter=30)
-    # Size of ICVI window: [1, infty)
+
+    """
+    Size of ICVI window: [1, infty).
+    """
     icvi_window = 5; @assert icvi_window >= 1
-    # Size of correlation window: [1, infty)
+
+    """
+    Size of correlation window: [1, infty).
+    """
     correlation_window = 5; @assert correlation_window >= 1
-    # Number of rocket kernels: [1, infty)
+
+    """
+    Number of rocket kernels: [1, infty).
+    """
     n_rocket = 5; @assert n_rocket >= 1
-    # Rocket file location
+
+    """
+    Rocket file location.
+    """
     rocket_file::String = module_dir("data", "models", "rocket.jld2")
-    # Classifier file location
+
+    """
+    Classifier file location.
+    """
     classifier_file::String = module_dir("data", "models", "classifier.jld")
-    # Display flag
+
+    """
+    Display flag.
+    """
     display::Bool = true
-    # Flag to fail if any file is missing (rather than creating new objects)
+
+    """
+    Flag to fail if any file is missing (rather than creating new objects).
+    """
     fail_on_missing::Bool = false
-end # MetaICVIOpts
+end
 
 """
     MetaICVIModule
@@ -85,14 +111,49 @@ Stateful information for a single MetaICVI module.
 - `is_pretrained::Bool`: internal flag for if the classifier is trained and ready for inference.
 """
 mutable struct MetaICVIModule
+    """
+    Options for construction.
+    """
     opts::MetaICVIOpts
+
+    """
+    List of cvis used for computing the CVIs.
+    """
     cvis::Vector{CVI}
+
+    """
+    List of outputs of the cvis used for computing correlations.
+    """
     criterion_values::Vector{RealVector}
+
+    """
+    List of outputs of the rank correlations.
+    """
     correlations::RealVector
+
+    """
+    List of outputs of the rocket feature kernels.
+    """
     features::RealVector
+
+    """
+    Time-series random feature kernels module.
+    """
     rocket::RocketModule
+
+    """
+    ScikitLearn classifier.
+    """
     classifier::MetaICVIClassifier
+
+    """
+    Final output of the most recent the Meta-ICVI step.
+    """
     performance::RealFP
+
+    """
+    Final output of the most recent the Meta-ICVI step.
+    """
     probabilities::RealVector
     is_pretrained::Bool
 end # MetaICVIModule
