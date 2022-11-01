@@ -2,6 +2,14 @@ __precompile__()
 
 module MetaICVI
 
+# --------------------------------------------------------------------------- #
+# DEPENDENCIES
+# --------------------------------------------------------------------------- #
+
+# Full usings (which supports comma-separated import notation)
+using
+    NumericalTypeAliases    # Abstract type aliases
+
 # -----------------------------------------------------------------------------
 # PREPROCESSING
 # -----------------------------------------------------------------------------
@@ -20,9 +28,6 @@ module MetaICVI
 # -----------------------------------------------------------------------------
 # DEFINITIONS
 # -----------------------------------------------------------------------------
-
-# Common types and method
-include("common.jl")
 
 # Meta-icvi module definition
 include("meta-icvi/meta-icvi.jl")
