@@ -6,6 +6,7 @@ version = "0.1.1"
 [deps]
 ClusterValidityIndices = "2fefd308-f647-4698-a2f0-e90cfcbca9ad"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
