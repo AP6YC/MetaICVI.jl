@@ -108,17 +108,17 @@ mutable struct MetaICVIModule
     """
     List of outputs of the cvis used for computing correlations.
     """
-    criterion_values::Vector{RealVector}
+    criterion_values::Vector{Vector{Float}}
 
     """
     List of outputs of the rank correlations.
     """
-    correlations::RealVector
+    correlations::Vector{Float}
 
     """
     List of outputs of the rocket feature kernels.
     """
-    features::RealVector
+    features::Vector{Float}
 
     """
     Time-series random feature kernels module.
@@ -133,12 +133,12 @@ mutable struct MetaICVIModule
     """
     Final output of the most recent the Meta-ICVI step.
     """
-    performance::RealFP
+    performance::Float
 
     """
     Final output of the most recent the Meta-ICVI step.
     """
-    probabilities::RealVector
+    probabilities::Vector{Float}
 
     """
     Internal flag for if the classifier is trained and ready for inference.
@@ -165,7 +165,7 @@ function MetaICVIModule(opts::MetaICVIOpts)
     ]
 
     # Initialize the empty vectors for each criterion value
-    cvi_values = [Array{RealFP}(undef, 0) for _ = 1:length(cvis)]
+    cvi_values = [Array{Float}(undef, 0) for _ = 1:length(cvis)]
 
     # Construct the rocket kernels
     if isfile(opts.rocket_file)
@@ -215,8 +215,8 @@ function MetaICVIModule(opts::MetaICVIOpts)
         opts,                       # opts
         cvis,                       # cvis
         cvi_values,                 # criterion_values
-        Array{RealFP}(undef, 0),    # correlations
-        Array{RealFP}(undef, 0),    # features
+        Array{Float}(undef, 0),     # correlations
+        Array{Float}(undef, 0),     # features
         rocket_module,              # rocket
         classifier,                 # classifier
         0.0,                        # performance
