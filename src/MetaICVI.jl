@@ -8,7 +8,23 @@ module MetaICVI
 
 # Full usings (which supports comma-separated import notation)
 using
-    NumericalTypeAliases    # Abstract type aliases
+    # External libraries
+    Logging,                        # Logging is used for operation diagnostics
+    Parameters,                     # MetaICVIOpts are Parameters structs
+    PyCall,                         # PyCall object definition
+    JLD,                            # JLD is currently recommended for saving/loading ScikitLearn objects
+    PyCallJLD,                      # PyCall definition for serialization with JLD
+    ScikitLearn,                    # Classifiers are scikit-learn pyobjects
+    # using BSON
+    # Custom libraries
+    ClusterValidityIndices,         # All Julia-implemented CVI definitions
+    NumericalTypeAliases            # Abstract type aliases
+
+# Colon syntax broken into new lines
+using StatsBase: corspearman        # Rank correlation for cvi criterion values
+using ProgressMeter: @showprogress  # Data loading progress for training
+using DelimitedFiles: readdlm       # Loading cvi data
+# using ScikitLearn.Skcore: FitBit
 
 # -----------------------------------------------------------------------------
 # PREPROCESSING

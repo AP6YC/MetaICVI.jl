@@ -36,6 +36,7 @@ AdaptiveResonance = "3d72adc0-63d3-4141-bf9b-84450dd0395b"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 
 [targets]
-test = ["AdaptiveResonance", "DelimitedFiles", "Statistics", "Test"]
+test = ["AdaptiveResonance", "DelimitedFiles", "Statistics", "Test", "SafeTestsets"]
