@@ -18,7 +18,7 @@ mutable struct DataSplit
 end
 
 """
-    DataSplit(data_x::Array, data_y::Array, ratio::Float)
+    DataSplit(data_x::Array, data_y::Array, ratio::Real)
 
 Return a DataSplit struct that is split by the ratio (e.g. 0.8).
 """

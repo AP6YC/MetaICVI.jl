@@ -1,5 +1,42 @@
 __precompile__()
 
+"""
+Main module for `MetaICVI.jl`, a Julia package implementing the MetaICVI method.
+
+This module exports all of the modules, options, and utilities used by the `MetaICVI.jl package.`
+For full usage, see the official guide at https://ap6yc.github.io/MetaICVI.jl/dev/man/guide/.
+
+# Basic Usage
+
+Install and import the package in a script with
+
+```julia
+using Pkg
+Pkg.add("MetaICVI")
+using MetaICVI
+```
+
+Next, create a MetaICVI module with some options
+
+```julia
+# Create the options
+opts = MetaICVIOpts(
+    fail_on_missing = false
+)
+# Create a module
+metaicvi = MetaICVIModule(opts)
+```
+
+# Imports
+
+The following names are imported by the package as dependencies:
+$(IMPORTS)
+
+# Exports
+
+The following names are exported and available when `using` the package:
+$(EXPORTS)
+"""
 module MetaICVI
 
 # --------------------------------------------------------------------------- #
@@ -15,6 +52,7 @@ using
     JLD,                            # JLD is currently recommended for saving/loading ScikitLearn objects
     PyCallJLD,                      # PyCall definition for serialization with JLD
     ScikitLearn,                    # Classifiers are scikit-learn pyobjects
+    DocStringExtensions
     # using BSON
     # Custom libraries
     ClusterValidityIndices,         # All Julia-implemented CVI definitions

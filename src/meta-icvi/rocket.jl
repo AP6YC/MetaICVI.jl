@@ -47,6 +47,23 @@ end
     RocketModule
 
 Structure containing a vector of rocket kernels.
+
+# References
+
+## Authors
+Angus Dempster, Francois Petitjean, Geoff Webb
+
+## Bibtex Entry
+@article{dempster_etal_2020,
+  author  = {Dempster, Angus and Petitjean, Fran\c{c}ois and Webb, Geoffrey I},
+  title   = {ROCKET: Exceptionally fast and accurate time classification using random convolutional kernels},
+  year    = {2020},
+  journal = {Data Mining and Knowledge Discovery},
+  doi     = {https://doi.org/10.1007/s10618-020-00701-z}
+}
+
+## Arxiv Preprint Link
+https://arxiv.org/abs/1910.13051 (preprint)
 """
 mutable struct RocketModule
     kernels::Vector{RocketKernel}
