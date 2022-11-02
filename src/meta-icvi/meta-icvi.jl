@@ -139,6 +139,10 @@ mutable struct MetaICVIModule
     Final output of the most recent the Meta-ICVI step.
     """
     probabilities::RealVector
+
+    """
+    Internal flag for if the classifier is trained and ready for inference.
+    """
     is_pretrained::Bool
 end # MetaICVIModule
 
@@ -354,6 +358,16 @@ function save_classifier(classifier::MetaICVIClassifier, filepath::String)
 end # save_classifier(classifier::MetaICVIClassifier, filepath::String)
 
 """
+Saves the MetaICVI object, including its rocket kernels and serialized classifier.
+"""
+function save_metaicvi(metaicvi::MetaICVIModule)
+    # Save the rocket kernels used
+    safe_save_rocket(metaicvi)
+    # Save the classifier used
+    safe_save_classifier(metaicvi)
+end
+
+"""
     train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
 
 Train the classifier on x/y and save the kernels and classifier.
@@ -374,10 +388,8 @@ function train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVecto
     fit!(metaicvi.classifier, x, y)
     metaicvi.is_pretrained = true
 
-    # Save the rocket kernels used
-    safe_save_rocket(metaicvi)
-    # Save the classifier used
-    safe_save_classifier(metaicvi)
+    # Save the metaicvi kernels and classifier
+    save_metaicvi(metaicvi)
 end # train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
 
 """

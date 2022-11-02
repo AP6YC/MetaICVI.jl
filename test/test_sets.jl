@@ -13,7 +13,8 @@ include("test_utils.jl")
 @testset "MetaICVI.jl" begin
     # Create the module
     opts = MetaICVIOpts(
-        fail_on_missing = true
+        # fail_on_missing = true
+        fail_on_missing = false
     )
     metaicvi = MetaICVIModule(opts)
 
