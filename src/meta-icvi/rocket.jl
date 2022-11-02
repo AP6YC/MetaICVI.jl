@@ -14,35 +14,17 @@ module Rocket
 #
 # https://arxiv.org/abs/1910.13051 (preprint)
 
+# -----------------------------------------------------------------------------
+# IMPORTS
+# -----------------------------------------------------------------------------
+
 # using StatsBase: ZScoreTransform, fit!
+using
+    Random,
+    NumericalTypeAliases
+
 using JLD2: save_object, load_object
-using Random
 using StatsBase: sample
-
-# -----------------------------------------------------------------------------
-# ALIASES
-# -----------------------------------------------------------------------------
-#   **Taken from StatsBase.jl**
-#
-#  These types signficantly reduces the need of using
-#  type parameters in functions (which are often just
-#  for the purpose of restricting the arrays to real)
-#
-# These could be removed when the Base supports
-# covariant type notation, i.e. AbstractVector{<:Real}
-
-# Real-numbered aliases
-const RealArray{T<:Real, N} = AbstractArray{T, N}
-const RealVector{T<:Real} = AbstractArray{T, 1}
-const RealMatrix{T<:Real} = AbstractArray{T, 2}
-
-# Integered aliases
-const IntegerArray{T<:Integer, N} = AbstractArray{T, N}
-const IntegerVector{T<:Integer} = AbstractArray{T, 1}
-const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
-
-# Specifically floating-point aliases
-const RealFP = Union{Float32, Float64}
 
 # -----------------------------------------------------------------------------
 # STRUCTURES
@@ -54,11 +36,11 @@ const RealFP = Union{Float32, Float64}
 Structure containing information about one rocket kernel.
 """
 struct RocketKernel
-    length::Integer
-    weight::RealVector
-    bias::RealFP
-    dilation::Integer
-    padding::Integer
+    length::Int
+    weight::Vector{Float}
+    bias::Float
+    dilation::Int
+    padding::Int
 end
 
 """
@@ -147,7 +129,7 @@ function apply_kernel(kernel::RocketKernel, x::RealVector)
         end
     end
     return [_ppv / output_length, _max]
-end # apply_kernel(kernel::RocketKernel, x::RealVector)
+end
 
 """
     apply_kernels(rocket::RocketModule, x::RealVector)
@@ -172,7 +154,7 @@ function apply_kernels(rocket::RocketModule, x::RealVector)
 
     # Return the full features array
     return features
-end # apply_kernels(rocket::RocketModule, x::RealVector)
+end
 
 """
     save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
@@ -186,7 +168,7 @@ Save the rocket parameters to a .jld2 file.
 function save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
     # Use the JLD2 save_object for simplicity
     save_object(filepath, rocket)
-end # save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
+end
 
 """
     load_rocket(filepath::String="rocket.jld2")
@@ -199,7 +181,7 @@ Load and return a rocket module with existing parameters from a .jld2 file.
 function load_rocket(filepath::String="rocket.jld2")
     # Use the JLD2 load_object for simplicity
     return load_object(filepath)
-end # load_rocket(filepath::String="rocket.jld2")
+end
 
 # -----------------------------------------------------------------------------
 # EXPORTS

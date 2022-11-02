@@ -144,7 +144,7 @@ mutable struct MetaICVIModule
     Internal flag for if the classifier is trained and ready for inference.
     """
     is_pretrained::Bool
-end # MetaICVIModule
+end
 
 """
     MetaICVIModule(opts::MetaICVIOpts)
@@ -223,7 +223,7 @@ function MetaICVIModule(opts::MetaICVIOpts)
         zeros(3),                   # probabilities
         is_pretrained               # is_pretrained
     )
-end # MetaICVIModule(opts::MetaICVIOpts)
+end
 
 """
     MetaICVIModule()
@@ -235,7 +235,7 @@ function MetaICVIModule()
     opts = MetaICVIOpts()
     # Return the Meta-ICVI module constructed with the default options
     return MetaICVIModule(opts)
-end # MetaICVIModule()
+end
 
 # -----------------------------------------------------------------------------
 # METHODS
@@ -278,7 +278,7 @@ function Base.show(io::IO, metaicvi::MetaICVIModule)
             """
         )
     end
-end # Base.show(io::IO, metaicvi::MetaICVIModule)
+end
 
 """
     construct_classifier(opts::MetaICVIOpts)
@@ -292,7 +292,7 @@ function construct_classifier(opts::MetaICVIOpts)
     @info "Constructing a new classifier"
     @eval classifier = $(opts.classifier_selection)(;$(opts.classifier_opts)...)
     return MetaICVIClassifier(classifier)
-end # construct_classifier(opts::MetaICVIOpts)
+end
 
 """
     safe_save_classifier(metaicvi::MetaICVIModule)
@@ -310,7 +310,7 @@ function safe_save_classifier(metaicvi::MetaICVIModule)
     else
         error("No filename provided for classifier file saving/loading.")
     end
-end # safe_save_classifier(metaicvi::MetaICVIModule)
+end
 
 """
     safe_save_rocket(metaicvi::MetaICVIModule)
@@ -328,7 +328,7 @@ function safe_save_rocket(metaicvi::MetaICVIModule)
     else
         error("No filename provided for rocket file saving/loading.")
     end
-end # safe_save_rocket(metaicvi::MetaICVIModule)
+end
 
 """
     load_classifier(filepath::String)
@@ -341,7 +341,7 @@ Load the classifier at the filepath.
 function load_classifier(filepath::String)
     return MetaICVIClassifier(JLD.load(filepath, "classifier"))
     # return BSON.load(filepath, @__MODULE__)["classifier"]
-end # load_classifier(filepath::String)
+end
 
 """
     save_classifier(classifier::MetaICVIClassifier, filepath::String)
@@ -355,7 +355,7 @@ Save the classifier at the filepath.
 function save_classifier(classifier::MetaICVIClassifier, filepath::String)
     JLD.save(filepath, "classifier", classifier)
     # bson(filepath, Dict("classifier" => classifier))
-end # save_classifier(classifier::MetaICVIClassifier, filepath::String)
+end
 
 """
 Saves the MetaICVI object, including its rocket kernels and serialized classifier.
@@ -390,7 +390,7 @@ function train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVecto
 
     # Save the metaicvi kernels and classifier
     save_metaicvi(metaicvi)
-end # train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
+end
 
 """
     get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
@@ -413,7 +413,7 @@ function get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
             popfirst!(metaicvi.criterion_values[ix])
         end
     end
-end # get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
+end
 
 """
     get_correlations(metaicvi::MetaICVIModule)
@@ -436,7 +436,7 @@ function get_correlations(metaicvi::MetaICVIModule)
             popfirst!(metaicvi.correlations)
         end
     end
-end # get_correlations(metaicvi::MetaICVIModule)
+end
 
 """
     get_rocket_features(metaicvi::MetaICVIModule)
@@ -453,7 +453,7 @@ function get_rocket_features(metaicvi::MetaICVIModule)
     else
         metaicvi.features = zeros(metaicvi.opts.n_rocket)
     end
-end # get_rocket_features(metaicvi::MetaICVIModule)
+end
 
 """
     is_pretrained(metaicvi::MetaICVIModule)
@@ -467,7 +467,7 @@ function is_pretrained(metaicvi::MetaICVIModule)
     # Check if the model is pretrained with the isfit function
     # return ScikitLearn.Utils.isfit(metaicvi.classifier)
     return metaicvi.is_pretrained
-end # is_pretrained(metaicvi::MetaICVIModule)
+end
 
 """
     get_probability(metaicvi::MetaICVIModule)
@@ -489,7 +489,7 @@ function get_probability(metaicvi::MetaICVIModule)
     else
         metaicvi.performance = 0.0
     end
-end # get_probability(metaicvi::MetaICVIModule)
+end
 
 """
     get_features(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
@@ -510,7 +510,7 @@ function get_features(metaicvi::MetaICVIModule, sample::RealVector, label::Integ
 
     # Compute the rocket features
     get_rocket_features(metaicvi)
-end # get_features(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
+end
 
 """
     get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
@@ -536,7 +536,7 @@ function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integ
     end
 
     return metaicvi.performance
-end # get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
+end
 
 """
     get_cvi_data(data_file::String)
@@ -554,7 +554,7 @@ function get_cvi_data(data_file::String)
     train_y = convert(Vector{Integer}, data[3, :])
 
     return train_x, train_y
-end # get_cvi_data(data_file::String)
+end
 
 """
     get_training_features(metaicvi::MetaICVIModule, data_path::String)
@@ -623,4 +623,4 @@ function get_training_features(metaicvi::MetaICVIModule, data_path::String)
     end
 
     return features_data, features_targets
-end # get_training_features(metaicvi::MetaICVIModule, data_path::String)
+end
