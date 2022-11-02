@@ -55,7 +55,7 @@ Angus Dempster, Francois Petitjean, Geoff Webb
 
 ## Bibtex Entry
 @article{dempster_etal_2020,
-  author  = {Dempster, Angus and Petitjean, Fran\c{c}ois and Webb, Geoffrey I},
+  author  = {Dempster, Angus and Petitjean, Francois and Webb, Geoffrey I},
   title   = {ROCKET: Exceptionally fast and accurate time classification using random convolutional kernels},
   year    = {2020},
   journal = {Data Mining and Knowledge Discovery},

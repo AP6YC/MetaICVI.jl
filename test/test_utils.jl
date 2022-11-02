@@ -69,14 +69,14 @@ end # DataSplit(data_x::Array, data_y::Array, ratio::Real, seq_ind::Array)
 
 Loads the iris dataset for testing and examples.
 """
-function load_iris(data_path::String ; split_ratio::Real = 0.8)
+function load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
     raw_data = readdlm(data_path,',')
     labels = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
-    raw_x = convert(Array{Float64, 2}, raw_data[2:end, 2:5])
+    raw_x = convert(Array{Float, 2}, raw_data[2:end, 2:5])
     raw_y_labels = raw_data[2:end, 6]
-    raw_y = Array{Integer}(undef, 0)
-    for ix = 1:length(raw_y_labels)
-        for jx = 1:length(labels)
+    raw_y = Array{Int}(undef, 0)
+    for ix in eachindex(raw_y_labels)
+        for jx in eachindex(labels)
             if raw_y_labels[ix] == labels[jx]
                 push!(raw_y, jx)
             end
@@ -95,7 +95,7 @@ function load_iris(data_path::String ; split_ratio::Real = 0.8)
     data = DataSplit(x, y, split_ratio)
 
     return data
-end # load_iris(data_path::String ; split_ratio::Real = 0.8)
+end
 
 """
     get_cvi_data(data_file::String)
@@ -106,8 +106,8 @@ function get_cvi_data(data_file::String)
     # Parse the data
     data = readdlm(data_file, ',')
     data = permutedims(data)
-    train_x = convert(Matrix{Float64}, data[1:2, :])
-    train_y = convert(Vector{Integer}, data[3, :])
+    train_x = convert(Matrix{Float}, data[1:2, :])
+    train_y = convert(Vector{Int}, data[3, :])
 
     return train_x, train_y
-end # get_cvi_data(data_file::String)
+end

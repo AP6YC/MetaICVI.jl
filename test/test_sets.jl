@@ -2,7 +2,7 @@
 # using JLD
 using PyCallJLD
 using MetaICVI
-using ClusterValidityIndices
+# using ClusterValidityIndices
 using Test
 using Logging
 
@@ -11,6 +11,13 @@ include("test_utils.jl")
 
 # MetaICVI module testing
 @testset "MetaICVI.jl" begin
+
+    # Point to the correct data directories
+    data_dir(args...) = joinpath("../data", args...)
+    training_dir(args...) = data_dir("training", args...)
+    testing_dir(args...) = data_dir("testing", args...)
+    results_dir(args...) = joinpath("../data/results", args...)
+
     # Create the module
     opts = MetaICVIOpts(
         # fail_on_missing = true
@@ -18,17 +25,17 @@ include("test_utils.jl")
     )
     metaicvi = MetaICVIModule(opts)
 
+    # Train and save
+    features_data, features_targets = get_training_features(metaicvi, training_dir())
+    train_and_save(metaicvi, features_data, features_targets)
+
     # Display some aspects of the module
     @info fieldnames(typeof(metaicvi))
     @info metaicvi
     @info metaicvi.classifier
 
-    # Point to the correct data directories
-    data_dir(args...) = joinpath("../data/testing", args...)
-    results_dir(args...) = joinpath("../data/results", args...)
-
     # Load the data and test across all supervised modules
-    data = load_iris(data_dir("Iris.csv"))
+    data = load_iris(testing_dir("Iris.csv"))
     # data.train_y = relabel_cvi_data(data.train_y)
 
     # Iterate over the data

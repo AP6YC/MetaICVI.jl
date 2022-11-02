@@ -52,7 +52,7 @@ using
     JLD,                            # JLD is currently recommended for saving/loading ScikitLearn objects
     PyCallJLD,                      # PyCall definition for serialization with JLD
     ScikitLearn,                    # Classifiers are scikit-learn pyobjects
-    DocStringExtensions
+    DocStringExtensions,
     # using BSON
     # Custom libraries
     ClusterValidityIndices,         # All Julia-implemented CVI definitions
