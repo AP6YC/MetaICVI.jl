@@ -161,7 +161,7 @@ function MetaICVIModule(opts::MetaICVIOpts)
     # Construct the CVIs
     cvis = [
         PS(),
-        GD43()
+        GD43(),
     ]
 
     # Initialize the empty vectors for each criterion value
@@ -385,7 +385,7 @@ function train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVecto
 
     # Train the classifier
     @info "Training classifier"
-    fit!(metaicvi.classifier, x, y)
+    fit!(metaicvi.classifier, x', y)
     metaicvi.is_pretrained = true
 
     # Save the metaicvi kernels and classifier
@@ -453,6 +453,8 @@ function get_rocket_features(metaicvi::MetaICVIModule)
     else
         metaicvi.features = zeros(metaicvi.opts.n_rocket)
     end
+
+    # metaicvi.features = transpose([metaicvi.features])
 end
 
 """
@@ -481,7 +483,8 @@ function get_probability(metaicvi::MetaICVIModule)
     # If we have previously computed features
     if !isempty(metaicvi.features) && is_pretrained(metaicvi)
         # Compute the class 'probabilities'
-        probs = predict_proba(metaicvi.classifier, transpose([metaicvi.features]))
+        # probs = predict_proba(metaicvi.classifier, transpose([metaicvi.features]))
+        probs = predict_proba(metaicvi.classifier, metaicvi.features)
         metaicvi.probabilities = probs[:]
 
         # Store only the probability of correct partitioning
@@ -539,19 +542,19 @@ function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integ
 end
 
 """
-    get_cvi_data(data_file::String)
+    get_cvi_data(data_file::AbstractString)
 
 Get the cvi data specified by the data_file path.
 
 # Arguments
 - `data_file::String`: file containing clustered data for cvi processing.
 """
-function get_cvi_data(data_file::String)
+function get_cvi_data(data_file::AbstractString)
     # Parse the data
     data = readdlm(data_file, ',')
     data = permutedims(data)
-    train_x = convert(Matrix{Float64}, data[1:2, :])
-    train_y = convert(Vector{Integer}, data[3, :])
+    train_x = convert(Matrix{Float}, data[1:2, :])
+    train_y = convert(Vector{Int}, data[3, :])
 
     return train_x, train_y
 end
@@ -622,5 +625,6 @@ function get_training_features(metaicvi::MetaICVIModule, data_path::String)
         end
     end
 
+    # return transpose(features_data), features_targets
     return features_data, features_targets
 end

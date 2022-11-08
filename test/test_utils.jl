@@ -22,14 +22,24 @@ end
 
 Return a DataSplit struct that is split by the ratio (e.g. 0.8).
 """
-function DataSplit(data_x::Array, data_y::Array, ratio::Real)
-    dim, n_data = size(data_x)
-    split_ind = Int(floor(n_data*ratio))
+function DataSplit(data_x::Array, data_y::Array, ratio::Real ; shuffle=false)
+    dim, n_samples = size(data_x)
+    split_ind = Int(floor(n_samples*ratio))
 
-    train_x = data_x[:, 1:split_ind]
-    test_x = data_x[:, split_ind+1:end]
-    train_y = data_y[1:split_ind]
-    test_y = data_y[split_ind+1:end]
+    if shuffle
+        # Shuffle the data and targets
+        ind_shuffle = Random.randperm(n_samples)
+        temp_data_x = data_x[:, ind_shuffle]
+        temp_data_y = data_y[ind_shuffle]
+    else
+        temp_data_x = data_x
+        temp_data_y = data_y
+    end
+
+    train_x = temp_data_x[:, 1:split_ind]
+    test_x = temp_data_x[:, split_ind+1:end]
+    train_y = temp_data_y[1:split_ind]
+    test_y = temp_data_y[split_ind+1:end]
 
     return DataSplit(train_x, test_x, train_y, test_y)
 end
@@ -39,7 +49,7 @@ end
 
 Sequential loading and ratio split of the data.
 """
-function DataSplit(data_x::Array, data_y::Array, ratio::Real, seq_ind::Array)
+function DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real, seq_ind::Array)
     dim, n_data = size(data_x)
     n_splits = length(seq_ind)
 
@@ -97,17 +107,17 @@ function load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
     return data
 end
 
-"""
-    get_cvi_data(data_file::String)
+# """
+#     get_cvi_data(data_file::String)
 
-Get the cvi data specified by the data_file path.
-"""
-function get_cvi_data(data_file::String)
-    # Parse the data
-    data = readdlm(data_file, ',')
-    data = permutedims(data)
-    train_x = convert(Matrix{Float}, data[1:2, :])
-    train_y = convert(Vector{Int}, data[3, :])
+# Get the cvi data specified by the data_file path.
+# """
+# function get_cvi_data(data_file::AbstractString)
+#     # Parse the data
+#     data = readdlm(data_file, ',')
+#     data = permutedims(data)
+#     train_x = convert(Matrix{Float}, data[1:2, :])
+#     train_y = convert(Vector{Int}, data[3, :])
 
-    return train_x, train_y
-end
+#     return train_x, train_y
+# end

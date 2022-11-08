@@ -5,6 +5,7 @@ using MetaICVI
 # using ClusterValidityIndices
 using Test
 using Logging
+using NumericalTypeAliases
 
 # Include some test utilities (data loading, etc.)
 include("test_utils.jl")
@@ -16,6 +17,7 @@ include("test_utils.jl")
     data_dir(args...) = joinpath("../data", args...)
     training_dir(args...) = data_dir("training", args...)
     testing_dir(args...) = data_dir("testing", args...)
+    models_dir(args...) = data_dir("models", args...)
     results_dir(args...) = joinpath("../data/results", args...)
 
     # Create the module
@@ -34,6 +36,13 @@ include("test_utils.jl")
     @info metaicvi
     @info metaicvi.classifier
 
+    # Create the module
+    opts = MetaICVIOpts(
+        fail_on_missing = true
+        # fail_on_missing = false
+    )
+    metaicvi = MetaICVIModule(opts)
+
     # Load the data and test across all supervised modules
     data = load_iris(testing_dir("Iris.csv"))
     # data.train_y = relabel_cvi_data(data.train_y)
@@ -50,6 +59,10 @@ include("test_utils.jl")
     # Perform some simple tests
     @test all(performances .>= 0)
     @test all(performances .<= 1)
+
+    # Cleanup
+    rm(models_dir("classifier.jld"))
+    rm(models_dir("rocket.jld2"))
 end
 
 # Rocket testing
