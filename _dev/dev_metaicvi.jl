@@ -31,10 +31,13 @@ metaicvi = MetaICVIModule(opts)
 
 # Train and save
 @info "--- TRAINING FIRST MODULE ---"
-features_data, features_targets = get_training_features(metaicvi, training_dir())
 
-data = DataSplit(features_data, features_targets, 0.8, shuffle=true)
-train_and_save(metaicvi, data.train_x, data.train_y)
+local_data = MetaICVI.load_training_data(training_dir())
+train_data, test_data = MetaICVI.split_training_data(local_data)
+test_x, test_y = MetaICVI.serialize_data(test_data)
+
+features_data, features_targets = get_training_features(metaicvi, train_data)
+train_and_save(metaicvi, features_data, features_targets)
 
 @info "--- CREATING SECOND MODULE ---"
 # Create the module
@@ -49,11 +52,11 @@ new_metaicvi = MetaICVIModule(opts)
 
 # Iterate over the data
 @info "--- TESTING ---"
-n_data = length(data.test_y)
+n_data = length(test_y)
 performances = zeros(n_data)
 for i = 1:n_data
-    sample = data.test_x[:, i]
-    label = data.test_y[i]
+    sample = test_x[:, i]
+    label = test_y[i]
     # performances[i] = get_metaicvi(new_metaicvi, sample, label)
     performances[i] = get_metaicvi(metaicvi, sample, label)
 end

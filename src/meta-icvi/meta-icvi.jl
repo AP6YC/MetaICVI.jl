@@ -7,6 +7,8 @@
 include("rocket.jl")
 using .Rocket
 
+using Random
+
 # -----------------------------------------------------------------------------
 # CONSTANTS
 # -----------------------------------------------------------------------------
@@ -368,31 +370,6 @@ function save_metaicvi(metaicvi::MetaICVIModule)
 end
 
 """
-    train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
-
-Train the classifier on x/y and save the kernels and classifier.
-
-# Arguments
-- `metaicvi::MetaICVIModule`: metaicvi module to save with.
-- `x::RealMatrix`: features to train on.
-- `y::IntegerVector`: correct/over/under partition targets.
-"""
-function train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
-    # Create a new classifier
-    # TODO: option to train/retrain loaded/serialized models
-    classifier = construct_classifier(metaicvi.opts)
-    metaicvi.classifier = classifier
-
-    # Train the classifier
-    @info "Training classifier"
-    fit!(metaicvi.classifier, x', y)
-    metaicvi.is_pretrained = true
-
-    # Save the metaicvi kernels and classifier
-    save_metaicvi(metaicvi)
-end
-
-"""
     get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
 
 Compute and store the icvi criterion values.
@@ -484,7 +461,8 @@ function get_probability(metaicvi::MetaICVIModule)
     if !isempty(metaicvi.features) && is_pretrained(metaicvi)
         # Compute the class 'probabilities'
         # probs = predict_proba(metaicvi.classifier, transpose([metaicvi.features]))
-        probs = predict_proba(metaicvi.classifier, metaicvi.features)
+        # probs = predict_proba(metaicvi.classifier, metaicvi.features)
+        probs = predict_proba(metaicvi.classifier, metaicvi.features')
         metaicvi.probabilities = probs[:]
 
         # Store only the probability of correct partitioning
@@ -559,13 +537,7 @@ function get_cvi_data(data_file::AbstractString)
     return train_x, train_y
 end
 
-"""
-    get_training_features(metaicvi::MetaICVIModule, data_path::String)
-
-# Arguments
-
-"""
-function get_training_features(metaicvi::MetaICVIModule, data_path::String)
+function load_training_data(data_path::AbstractString)
     # Point to data
     data_dir(args...) = joinpath(data_path, args...)
 
@@ -590,9 +562,84 @@ function get_training_features(metaicvi::MetaICVIModule, data_path::String)
         )
     )
 
+    return data
+end
+
+function shuffle_x_y(x::RealMatrix, y::IntegerVector)
+    n_samples = length(y)
+    # Shuffle the data and targets
+    ind_shuffle = Random.randperm(n_samples)
+    temp_x = x[:, ind_shuffle]
+    temp_y = y[ind_shuffle]
+    return temp_x, temp_y
+end
+
+function split_x_y(x::RealMatrix, y::IntegerVector ; split::Real=0.8)
+    n_samples = length(y)
+
+    # Split into train/test
+    split_ind = Int(floor(n_samples*split))
+
+    train_x = x[:, 1:split_ind]
+    test_x = x[:, split_ind+1:end]
+
+    train_y = y[1:split_ind]
+    test_y = y[split_ind+1:end]
+
+    return train_x, test_x, train_y, test_y
+end
+
+function split_training_data(data::Dict ; split::Real=0.8, shuffle=true)
+
+    train_data, test_data = Dict(), Dict()
+
+    for (key, value) in data
+
+        train_data[key] = Dict()
+        test_data[key] = Dict()
+
+        # Shuffle
+        if shuffle
+            temp_x, temp_y = shuffle_x_y(value["x"], value["y"])
+        else
+            temp_x = value["x"]
+            temp_y = value["y"]
+        end
+
+        (
+            train_data[key]["x"],
+            test_data[key]["x"],
+            train_data[key]["y"],
+            test_data[key]["y"]
+        ) = (
+            split_x_y(temp_x, temp_y, split=split)
+        )
+    end
+
+    return train_data, test_data
+end
+
+function serialize_data(data::Dict)
+    return_x = reduce(hcat, data[type]["x"] for (type, _) in data )
+    return_y = reduce(vcat, data[type]["y"] for (type, _) in data )
+
+    return return_x, return_y
+end
+
+"""
+    get_training_features(metaicvi::MetaICVIModule, data_path::String)
+
+# Arguments
+
+"""
+function get_training_features(metaicvi::MetaICVIModule, data::Dict)
+
     # Create the target containers
-    data_lengths = [length(correct_y), length(under_y), length(over_y)]
-    offset_lengths = [0, length(correct_y), length(under_y)]
+    # data_lengths = [length(correct_y), length(under_y), length(over_y)]
+    # offset_lengths = [0, length(correct_y), length(under_y)]
+    data_lengths = [length(data["correct"]["y"]), length(data["under"]["y"]), length(data["over"]["y"])]
+    offset_lengths = [0, length(data["correct"]["y"]), length(data["under"]["y"])]
+
     data_length = sum(data_lengths)
     features_data = zeros(metaicvi.opts.n_rocket, data_length)
     features_targets = zeros(Int, data_length)
@@ -628,3 +675,33 @@ function get_training_features(metaicvi::MetaICVIModule, data_path::String)
     # return transpose(features_data), features_targets
     return features_data, features_targets
 end
+
+"""
+    train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
+
+Train the classifier on x/y and save the kernels and classifier.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: metaicvi module to save with.
+- `x::RealMatrix`: features to train on.
+- `y::IntegerVector`: correct/over/under partition targets.
+"""
+function train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
+# function train_and_save(metaicvi::MetaICVIModule, data_path::AbstractString)
+    # Create a new classifier
+    # TODO: option to train/retrain loaded/serialized models
+    classifier = construct_classifier(metaicvi.opts)
+    metaicvi.classifier = classifier
+
+    # Train the classifier
+    @info "Training classifier"
+    fit!(metaicvi.classifier, x', y)
+    metaicvi.is_pretrained = true
+
+    # Save the metaicvi kernels and classifier
+    save_metaicvi(metaicvi)
+end
+
+# mutable struct MetaICVIData
+#     correct::Dict{String, }
+# end
