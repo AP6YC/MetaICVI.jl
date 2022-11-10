@@ -1,0 +1,7 @@
+[deps]
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+MetaICVI = "778c5047-3e82-4d04-81b5-6fafe2d2d704"
+NumericalTypeAliases = "be9b823e-291e-41a1-b8ce-806204e78f92"
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+ScikitLearn = "3646fa90-6ef7-5e7e-9f22-8aca16db6324"
