@@ -57,6 +57,9 @@ if !@isdefined SGDClassifier
 end
 # MetaICVIClassifier = SGDClassifier
 
+__init__()
+
 # a = MetaICVIClassifier(load_object("../data/models/classifier.jld2"))
 # sizeof(a)
-# a = get_saver(metaicvi.classifier)
+a = get_saver(metaicvi.classifier)
+# b = PyCall.PyBuffer(pycall(dumps, PyObject, metaicvi.classifier))
