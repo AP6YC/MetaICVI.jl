@@ -3,6 +3,8 @@ using NumericalTypeAliases
 using MetaICVI
 using Logging
 
+using PyCall, JLD, PyCallJLD
+
 # Include some test utilities (data loading, etc.)
 include("../test/test_utils.jl")
 
@@ -14,8 +16,8 @@ testing_dir(args...) = data_dir("testing", args...)
 models_dir(args...) = data_dir("models", args...)
 results_dir(args...) = joinpath("data/results", args...)
 
-# classifier_file = models_dir("classifier.jld")
-classifier_file = models_dir("classifier.jld2")
+classifier_file = models_dir("classifier.jld")
+# classifier_file = models_dir("classifier.jld2")
 rocket_file = models_dir("rocket.jld2")
 
 # Cleanup
@@ -61,7 +63,7 @@ for i = 1:n_data
     sample = test_x[:, i]
     label = test_y[i]
     # performances[i] = get_metaicvi(new_metaicvi, sample, label)
-    # performances[i] = get_metaicvi(new_metaicvi, sample, label)
+    performances[i] = get_metaicvi(new_metaicvi, sample, label)
     performances_orig[i] = get_metaicvi(metaicvi, sample, label)
 end
 

@@ -1,11 +1,12 @@
 # using PyCall
 # using JLD
-using PyCallJLD
-using MetaICVI
 # using ClusterValidityIndices
-using Test
-using Logging
-using NumericalTypeAliases
+using
+    MetaICVI,
+    PyCallJLD,
+    Test,
+    Logging,
+    NumericalTypeAliases
 
 # Include some test utilities (data loading, etc.)
 include("test_utils.jl")
@@ -28,6 +29,8 @@ include("test_utils.jl")
     metaicvi = MetaICVIModule(opts)
 
     # Train and save
+    # local_data = MetaICVI.load_training_data(training_dir())
+    # train_data, test_data = MetaICVI.split_training_data(local_data)
     features_data, features_targets = get_training_features(metaicvi, training_dir())
     train_and_save(metaicvi, features_data, features_targets)
 

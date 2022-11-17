@@ -29,8 +29,9 @@ module TestSaveLoad
     end
 
     function load_classifier()
-        # return JLD.load("mystruct.jld", "classifier")
-        return @eval JLD.load("mystruct.jld", "classifier")
+        return JLD.load("mystruct.jld", "classifier")
+        # classifier = @eval JLD.load("mystruct.jld", "classifier")
+        # return classifier
     end
 
     export MyStruct, save_classifier, load_classifier
@@ -38,6 +39,7 @@ end
 
 
 using .TestSaveLoad
+using PyCall, JLD, PyCallJLD
 
 ms = MyStruct(true)
 

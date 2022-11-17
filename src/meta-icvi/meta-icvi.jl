@@ -68,8 +68,8 @@ julia> MetaICVIOpts()
     """
     Classifier file location.
     """
-    # classifier_file::String = module_dir("data", "models", "classifier.jld")
-    classifier_file::String = module_dir("data", "models", "classifier.jld2")
+    classifier_file::String = module_dir("data", "models", "classifier.jld")
+    # classifier_file::String = module_dir("data", "models", "classifier.jld2")
 
     """
     Display flag.
@@ -161,8 +161,12 @@ Instantiate a MetaICVIModule with given options.
 function MetaICVIModule(opts::MetaICVIOpts)
     # Load the correct classifier from the opts
     # if !@isdefined SGDClassifier
-    @eval @sk_import linear_model: $(opts.classifier_selection)
-    # end
+    @eval begin
+        if !@isdefined $(opts.classifier_selection)
+            @sk_import linear_model: $(opts.classifier_selection)
+        end
+    end
+    # @eval @sk_import linear_model: $(opts.classifier_selection)
 
     # Construct the CVIs
     cvis = [
@@ -345,8 +349,8 @@ Load the classifier at the filepath.
 - `filepath::String`: location of the classifier .jld file.
 """
 function load_classifier(filepath::String)
-    # return MetaICVIClassifier(JLD.load(filepath, "classifier"))
-    return load_object(filepath)
+    return MetaICVIClassifier(JLD.load(filepath, "classifier"))
+    # return load_object(filepath)
     # return BSON.load(filepath, @__MODULE__)["classifier"]
 end
 
@@ -360,8 +364,8 @@ Save the classifier at the filepath.
 - `filepath::String`: name/path to save the classifier .jld file.
 """
 function save_classifier(classifier::MetaICVIClassifier, filepath::String)
-    # JLD.save(filepath, "classifier", classifier)
-    save_object(filepath, classifier)
+    JLD.save(filepath, "classifier", classifier)
+    # save_object(filepath, classifier)
     # bson(filepath, Dict("classifier" => classifier))
 end
 
