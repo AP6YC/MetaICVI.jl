@@ -48,18 +48,26 @@ opts = MetaICVIOpts(
 )
 metaicvi = MetaICVIModule(opts)
 
-
+# 10.5281/zenodo.7327501
 # const MetaICVIClassifier = ScikitLearn.Skcore.FitBit
 # const MetaICVIClassifier = PyCall.PyObject
-MetaICVIClassifier = PyCall.PyObject
-if !@isdefined SGDClassifier
-    @sk_import linear_model: SGDClassifier
-end
+# MetaICVIClassifier = PyCall.PyObject
+# if !@isdefined SGDClassifier
+#     @sk_import linear_model: SGDClassifier
+# end
 # MetaICVIClassifier = SGDClassifier
 
-__init__()
+@info "--- CREATING SECOND MODULE ---"
+# Create the module
+opts = MetaICVIOpts(
+    fail_on_missing = true
+)
+
+new_metaicvi = MetaICVIModule(opts)
+
+# __init__()
 
 # a = MetaICVIClassifier(load_object("../data/models/classifier.jld2"))
 # sizeof(a)
-a = get_saver(metaicvi.classifier)
+# a = get_saver(metaicvi.classifier)
 # b = PyCall.PyBuffer(pycall(dumps, PyObject, metaicvi.classifier))

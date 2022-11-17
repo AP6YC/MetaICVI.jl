@@ -3,6 +3,8 @@
 
 # Development ignores
 # _dev/
+_dev/*.jld
+_dev/*.jld2
 dev/
 
 # Project-specific ignores
