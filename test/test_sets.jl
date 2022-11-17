@@ -13,8 +13,6 @@ include("test_utils.jl")
 
 # MetaICVI module testing
 @testset "MetaICVI.jl" begin
-    using PyCall, JLD, PyCallJLD
-
     # Point to the correct data directories
     data_dir(args...) = joinpath("../data", args...)
     training_dir(args...) = data_dir("training", args...)

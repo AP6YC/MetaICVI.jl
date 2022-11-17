@@ -547,6 +547,9 @@ function get_cvi_data(data_file::AbstractString)
     return train_x, train_y
 end
 
+"""
+Loads the MetaICVI training data from the provided directory.
+"""
 function load_training_data(data_path::AbstractString)
     # Point to data
     data_dir(args...) = joinpath(data_path, args...)
@@ -575,6 +578,9 @@ function load_training_data(data_path::AbstractString)
     return data
 end
 
+"""
+Shuffles a batch of samples and their corresponding integer labels.
+"""
 function shuffle_x_y(x::RealMatrix, y::IntegerVector)
     n_samples = length(y)
     # Shuffle the data and targets
@@ -584,6 +590,9 @@ function shuffle_x_y(x::RealMatrix, y::IntegerVector)
     return temp_x, temp_y
 end
 
+"""
+Splits a batch of samples and their labels into train and test matrices.
+"""
 function split_x_y(x::RealMatrix, y::IntegerVector ; split::Real=0.8)
     n_samples = length(y)
 
@@ -599,6 +608,9 @@ function split_x_y(x::RealMatrix, y::IntegerVector ; split::Real=0.8)
     return train_x, test_x, train_y, test_y
 end
 
+"""
+Splits the MetaICVI data dictionary into train and test data dictionaries.
+"""
 function split_training_data(data::Dict ; split::Real=0.8, shuffle=true)
 
     train_data, test_data = Dict(), Dict()
@@ -629,6 +641,9 @@ function split_training_data(data::Dict ; split::Real=0.8, shuffle=true)
     return train_data, test_data
 end
 
+"""
+Takes the MetaICVI data dictionary and creates a matrix of samples and vector of labels for all partition qualities.
+"""
 function serialize_data(data::Dict)
     return_x = reduce(hcat, data[type]["x"] for (type, _) in data )
     return_y = reduce(vcat, data[type]["y"] for (type, _) in data )
@@ -637,10 +652,7 @@ function serialize_data(data::Dict)
 end
 
 """
-    get_training_features(metaicvi::MetaICVIModule, data_path::String)
-
-# Arguments
-
+Takes the MetaICVI data dictionary and computes the features for training the classifier.
 """
 function get_training_features(metaicvi::MetaICVIModule, data::Dict)
 
