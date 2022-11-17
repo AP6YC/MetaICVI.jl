@@ -13,6 +13,7 @@ include("test_utils.jl")
 
 # MetaICVI module testing
 @testset "MetaICVI.jl" begin
+    using PyCall, JLD, PyCallJLD
 
     # Point to the correct data directories
     data_dir(args...) = joinpath("../data", args...)
@@ -29,9 +30,10 @@ include("test_utils.jl")
     metaicvi = MetaICVIModule(opts)
 
     # Train and save
-    # local_data = MetaICVI.load_training_data(training_dir())
-    # train_data, test_data = MetaICVI.split_training_data(local_data)
-    features_data, features_targets = get_training_features(metaicvi, training_dir())
+    local_data = MetaICVI.load_training_data(training_dir())
+    train_data, test_data = MetaICVI.split_training_data(local_data)
+    test_x, test_y = MetaICVI.serialize_data(test_data)
+    features_data, features_targets = get_training_features(metaicvi, train_data)
     train_and_save(metaicvi, features_data, features_targets)
 
     # Display some aspects of the module
@@ -42,9 +44,8 @@ include("test_utils.jl")
     # Create the module
     opts = MetaICVIOpts(
         fail_on_missing = true
-        # fail_on_missing = false
     )
-    metaicvi = MetaICVIModule(opts)
+    new_metaicvi = MetaICVIModule(opts)
 
     # Load the data and test across all supervised modules
     data = load_iris(testing_dir("Iris.csv"))
@@ -53,15 +54,23 @@ include("test_utils.jl")
     # Iterate over the data
     n_data = length(data.train_y)
     performances = zeros(n_data)
+    performances_orig = zeros(n_data)
     for i = 1:n_data
-        sample = data.train_x[:, i]
-        label = data.train_y[i]
-        performances[i] = get_metaicvi(metaicvi, sample, label)
+        # sample = data.train_x[:, i]
+        # label = data.train_y[i]
+        # performances[i] = get_metaicvi(metaicvi, sample, label)
+        sample = test_x[:, i]
+        label = test_y[i]
+        # performances[i] = get_metaicvi(new_metaicvi, sample, label)
+        performances[i] = get_metaicvi(new_metaicvi, sample, label)
+        performances_orig[i] = get_metaicvi(metaicvi, sample, label)
     end
 
     # Perform some simple tests
     @test all(performances .>= 0)
     @test all(performances .<= 1)
+    @test all(performances_orig .>= 0)
+    @test all(performances_orig .<= 1)
 
     # Cleanup
     rm(models_dir("classifier.jld"))
