@@ -83,8 +83,12 @@ using DelimitedFiles: readdlm       # Loading cvi data
 # DEFINITIONS
 # -----------------------------------------------------------------------------
 
+# Common code
+include("meta-icvi/common.jl")
+
 # Meta-icvi module definition
 include("meta-icvi/meta-icvi.jl")
+
 
 # -----------------------------------------------------------------------------
 # EXPORTED NAMES
