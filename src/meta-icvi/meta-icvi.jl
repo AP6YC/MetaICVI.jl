@@ -25,8 +25,6 @@ const module_dir(paths...) = joinpath(dirname(pathof(@__MODULE__)), "..", paths.
 # -----------------------------------------------------------------------------
 
 """
-    MetaICVIOpts()
-
 Meta-ICVI module options.
 
 # Examples
@@ -151,8 +149,6 @@ mutable struct MetaICVIModule
 end
 
 """
-    MetaICVIModule(opts::MetaICVIOpts)
-
 Instantiate a MetaICVIModule with given options.
 
 # Arguments
@@ -236,8 +232,6 @@ function MetaICVIModule(opts::MetaICVIOpts)
 end
 
 """
-    MetaICVIModule()
-
 Default constructor for the MetaICVIModule.
 """
 function MetaICVIModule()
@@ -252,8 +246,6 @@ end
 # -----------------------------------------------------------------------------
 
 """
-    Base.show(io::IO, metaicvi::MetaICVIModule)
-
 Display a metaicvi module to the command line.
 
 # Arguments
@@ -291,8 +283,6 @@ function Base.show(io::IO, metaicvi::MetaICVIModule)
 end
 
 """
-    construct_classifier(opts::MetaICVIOpts)
-
 Construct a new classifier for the MetaICVI module with metaprogramming.
 
 # Arguments
@@ -305,8 +295,6 @@ function construct_classifier(opts::MetaICVIOpts)
 end
 
 """
-    safe_save_classifier(metaicvi::MetaICVIModule)
-
 Error handle saving of the metaicvi classifier.
 
 # Arguments
@@ -323,8 +311,6 @@ function safe_save_classifier(metaicvi::MetaICVIModule)
 end
 
 """
-    safe_save_rocket(metaicvi::MetaICVIModule)
-
 Error handle saving of the metaicvi rocket kernels.
 
 # Arguments
@@ -341,8 +327,6 @@ function safe_save_rocket(metaicvi::MetaICVIModule)
 end
 
 """
-    load_classifier(filepath::String)
-
 Load the classifier at the filepath.
 
 # Arguments
@@ -355,8 +339,6 @@ function load_classifier(filepath::String)
 end
 
 """
-    save_classifier(classifier::MetaICVIClassifier, filepath::String)
-
 Save the classifier at the filepath.
 
 # Arguments
@@ -380,8 +362,6 @@ function save_metaicvi(metaicvi::MetaICVIModule)
 end
 
 """
-    get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
-
 Compute and store the icvi criterion values.
 
 # Arguments
@@ -403,8 +383,6 @@ function get_icvis(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
 end
 
 """
-    get_correlations(metaicvi::MetaICVIModule)
-
 Compute and store the rank correlations from the cvi values.
 
 # Arguments
@@ -426,8 +404,6 @@ function get_correlations(metaicvi::MetaICVIModule)
 end
 
 """
-    get_rocket_features(metaicvi::MetaICVIModule)
-
 Compute and store the rocket features.
 
 # Arguments
@@ -445,8 +421,6 @@ function get_rocket_features(metaicvi::MetaICVIModule)
 end
 
 """
-    is_pretrained(metaicvi::MetaICVIModule)
-
 Checks if the classifier is pretrained to permit inference.
 
 # Arguments
@@ -459,8 +433,6 @@ function is_pretrained(metaicvi::MetaICVIModule)
 end
 
 """
-    get_probability(metaicvi::MetaICVIModule)
-
 Compute and store the metaicvi value from the classifier.
 
 # Arguments
@@ -483,8 +455,6 @@ function get_probability(metaicvi::MetaICVIModule)
 end
 
 """
-    get_features(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
-
 Compute only the features on the sample and label without classifier inference.
 
 # Arguments
@@ -504,8 +474,6 @@ function get_features(metaicvi::MetaICVIModule, sample::RealVector, label::Integ
 end
 
 """
-    get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integer)
-
 Compute and return the meta-icvi value.
 
 # Arguments
@@ -530,8 +498,6 @@ function get_metaicvi(metaicvi::MetaICVIModule, sample::RealVector, label::Integ
 end
 
 """
-    get_cvi_data(data_file::AbstractString)
-
 Get the cvi data specified by the data_file path.
 
 # Arguments
@@ -699,8 +665,6 @@ function get_training_features(metaicvi::MetaICVIModule, data::Dict)
 end
 
 """
-    train_and_save(metaicvi::MetaICVIModule, x::RealMatrix, y::IntegerVector)
-
 Train the classifier on x/y and save the kernels and classifier.
 
 # Arguments
