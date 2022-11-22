@@ -14,7 +14,7 @@ To work with `MetaICVI.jl`, you should know:
 The MetaICVI.jl package can be installed using the Julia package manager.
 From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 
-```julia
+```julia-repl
 pkg> add MetaICVI
 ```
 
