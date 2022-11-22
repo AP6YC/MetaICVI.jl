@@ -81,20 +81,7 @@ julia> MetaICVIOpts()
 end
 
 """
-    MetaICVIModule
-
 Stateful information for a single MetaICVI module.
-
-# Fields
-- `opts::MetaICVIOpts`: options for construction.
-- `cvis::Vector{CVI}`: list of cvis used for computing the CVIs.
-- `criterion_values::RealVector`: list of outputs of the cvis used for computing correlations.
-- `correlations::RealVector`: list of outputs of the rank correlations.
-- `features::RealVector`: list of outputs of the rocket feature kernels.
-- `rocket::RocketModule`: time-series random feature kernels module.
-- `classifier::MetaICVIClassifier`: ScikitLearn classifier.
-- `performance::RealFP`: final output of the most recent the Meta-ICVI step.
-- `is_pretrained::Bool`: internal flag for if the classifier is trained and ready for inference.
 """
 mutable struct MetaICVIModule
     """
