@@ -20,6 +20,8 @@ ScikitLearn = "3646fa90-6ef7-5e7e-9f22-8aca16db6324"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
+DocStringExtensions = "0.8, 0.9"
+NumericalTypeAliases = "0.1, 0.2"
 ClusterValidityIndices = "0.6"
 JLD = "0.12"
 JLD2 = "0.4"
