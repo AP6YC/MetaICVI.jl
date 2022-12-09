@@ -41,11 +41,11 @@ You must install `PyCallJLD.jl` alongside `MetaICVI.jl` for correct classifier m
 This is because the `ScikitLearn.jl` dependency requires saving/loading with the `JLD.jl` package on `PyCall.jl` objects, and PyCallJLD correctly loads the serialized object definitions into the current workspace.
 Otherwise, the classifier is loaded a memory block wrapped in a PyObject type, breaking inference and other operations.
 
-`PyCallJLD.jl` is distributed as a Julia package, available on [JuliaHub](https://juliahub.com/).
-Its installation follows the usual Julia package installation procedure, interactively:
+Both `PyCallJLD.jl` and `MetaICVI.jl` are distributed as Julia packages, available on [JuliaHub](https://juliahub.com/).
+Their installation followa the usual Julia package installation procedure, and they can both be installed simultaneously interactively:
 
 ```julia
-] add PyCallJLD
+] add PyCallJLD MetaICVI
 ```
 
 or programmatically:
@@ -53,10 +53,10 @@ or programmatically:
 ```julia
 using Pkg
 Pkg.add("PyCallJLD")
+Pkg.add("MetaICVI")
 ```
 
-At the time of this writing, `MetaICVI.jl` is not released on JuliaHub.
-To install `MetaICVI.jl`, you may add the package directly from GitHub:
+You may also get the most recent changes directly from the GitHub repository with:
 
 ```julia
 ] add https://github.com/AP6YC/MetaICVI.jl
@@ -71,10 +71,10 @@ Pkg.add("https://github.com/AP6YC/MetaICVI.jl")
 
 ### Basic Usage
 
-First, load both `PyCall` and `MetaICVI` with
+First, load both `PyCallJLD` and `MetaICVI` with
 
 ```julia
-using PyCall, MetaICVI
+using PyCallJLD, MetaICVI
 ```
 
 Then, create a MetaICVI module with the default constructor
@@ -93,10 +93,10 @@ where `sample` is a real-valued vector and `label` is an integer.
 
 ### Advanced Usage
 
-After loading both `PyCall` and `MetaICVI`
+After loading both `PyCallJLD` and `MetaICVI`
 
 ```julia
-using PyCall, MetaICVI
+using PyCallJLD, MetaICVI
 ```
 
 you can specify the MetaICVI options with
