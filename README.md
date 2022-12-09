@@ -30,6 +30,7 @@ A Julia implementation of the Meta-ICVI method as a separate package.
     - [Advanced Usage](#advanced-usage)
   - [Contributing](#contributing)
   - [Credits](#credits)
+    - [Citation](#citation)
     - [Authors](#authors)
     - [License](#license)
 
@@ -44,8 +45,9 @@ Otherwise, the classifier is loaded a memory block wrapped in a PyObject type, b
 Both `PyCallJLD.jl` and `MetaICVI.jl` are distributed as Julia packages, available on [JuliaHub](https://juliahub.com/).
 Their installation followa the usual Julia package installation procedure, and they can both be installed simultaneously interactively:
 
-```julia
-] add PyCallJLD MetaICVI
+```julia-repl
+julia> ]
+(@v1.8) pkg> add PyCallJLD MetaICVI
 ```
 
 or programmatically:
@@ -58,8 +60,9 @@ Pkg.add("MetaICVI")
 
 You may also get the most recent changes directly from the GitHub repository with:
 
-```julia
-] add https://github.com/AP6YC/MetaICVI.jl
+```julia-repl
+julia> ]
+(@v1.8) pkg> add https://github.com/AP6YC/MetaICVI.jl
 ```
 
 or programmatically, also with the GitHub link:
@@ -80,13 +83,13 @@ using PyCallJLD, MetaICVI
 Then, create a MetaICVI module with the default constructor
 
 ```julia
-    metaicvi = MetaICVIModule()
+metaicvi = MetaICVIModule()
 ```
 
 and retrieve the MetaICVI value iteratively with
 
 ```julia
-    get_metaicvi(metaicvi, sample, label)
+get_metaicvi(metaicvi, sample, label)
 ```
 
 where `sample` is a real-valued vector and `label` is an integer.
@@ -102,18 +105,18 @@ using PyCallJLD, MetaICVI
 you can specify the MetaICVI options with
 
 ```julia
-    opts = MetaICVIOpts(
-        classifier_selection = :SGDClassifier,
-        classifier_opts = (loss="log", max_iter=30),
-        icvi_window = 5,
-        correlation_window = 5,
-        n_rocket = 5,
-        rocket_file = "data/models/rocket.jld2",
-        classifier_file = "data/models/classifier.jld",
-        display = true,
-        fail_on_missing = false
-    )
-    metaicvi = MetaICVIModule(opts)
+opts = MetaICVIOpts(
+    classifier_selection = :SGDClassifier,
+    classifier_opts = (loss="log", max_iter=30),
+    icvi_window = 5,
+    correlation_window = 5,
+    n_rocket = 5,
+    rocket_file = "data/models/rocket.jld2",
+    classifier_file = "data/models/classifier.jld",
+    display = true,
+    fail_on_missing = false
+)
+metaicvi = MetaICVIModule(opts)
 ```
 
 The options are
@@ -132,6 +135,12 @@ The options are
 Please raise an [issue][issues-url].
 
 ## Credits
+
+### Citation
+
+This work is based off of the implementation at the paper with the following DOIs:
+
+- Preprint: [10.36227/techrxiv.21685214](https://doi.org/10.36227/techrxiv.21685214)
 
 ### Authors
 
