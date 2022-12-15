@@ -29,10 +29,10 @@ A Julia implementation of the Meta-ICVI method as a separate package.
     - [Basic Usage](#basic-usage)
     - [Advanced Usage](#advanced-usage)
   - [Contributing](#contributing)
-  - [Credits](#credits)
-    - [Citation](#citation)
+  - [Acknowledgements](#acknowledgements)
     - [Authors](#authors)
     - [License](#license)
+    - [Citation](#citation)
 
 ## Usage
 
@@ -134,13 +134,8 @@ The options are
 
 Please raise an [issue][issues-url].
 
-## Credits
+## Acknowledgements
 
-### Citation
-
-This work is based off of the implementation at the paper with the following DOIs:
-
-- Preprint: [10.36227/techrxiv.21685214](https://doi.org/10.36227/techrxiv.21685214)
 
 ### Authors
 
@@ -150,3 +145,20 @@ This work is based off of the implementation at the paper with the following DOI
 
 This software is developed by the Applied Computational Intelligence Laboratory (ACIL) of the Missouri University of Science and Technology (S&amp;T) under the supervision of Teledyne Technologies for the DARPA L2M program.
 Read the [License](LICENSE).
+
+### Citation
+
+This project has a [citation file](CITATION.cff) file that generates citation information for the package and corresponding JOSS paper, which can be accessed at the "Cite this repository button" under the "About" section of the GitHub page.
+
+You may also cite this repository with the following BibTeX entry:
+
+```bibtex
+@article{Melton2022,
+  author = "Niklas Melton and Sasha Petrenko and Donald Wunsch",
+  title = "{Meta-iCVIs: Ensemble Validity Metrics for Concise Labeling of Correct, Under- or Over-Partitioning in Streaming Clustering}",
+  year = "2022",
+  month = "12",
+  url = "https://www.techrxiv.org/articles/preprint/Meta-iCVIs_Ensemble_Validity_Metrics_for_Concise_Labeling_of_Correct_Under-_or_Over-Partitioning_in_Streaming_Clustering/21685214",
+  doi = "10.36227/techrxiv.21685214.v1"
+}
+```

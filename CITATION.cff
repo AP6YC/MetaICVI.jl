@@ -3,29 +3,55 @@ cff-version: 1.2.0
 
 # Author list
 authors:
-  - family-names: Petrenko
-    given-names: Sasha
-    orcid: https://orcid.org/0000-0003-2442-8901
-    website: https://ap6yc.github.io/
-    email: sap625@mst.edu
-    alias: AP6YC
+  - family-names: "Petrenko"
+    given-names: "Sasha"
+    orcid: "https://orcid.org/0000-0003-2442-8901"
+    website: "https://ap6yc.github.io/"
+    email: "sap625@mst.edu"
+    alias: "AP6YC"
     affiliation: "Missouri University of Science and Technology"
 
 # Repository title and descriptors
 title: "AP6YC/MetaICVI.jl"
 message: "If you use this software, please cite it as below."
 keywords:
-  - ICVI
-  - CVI
+  - "ICVI"
+  - "CVI"
   - "Cluster Validity Indices"
   - "Incremental Cluster Validity Indices"
   - "Cluster Validation"
 identifiers:
   - description: "The DOI of the latest MetaICVI.jl Zenodo archive."
-    type: doi
-    value: 10.5281/zenodo.5633988
-url: https://doi.org/10.5281/zenodo.5633988
-repository-code: https://github.com/AP6YC/MetaICVI.jl
-license: MIT
+    type: "doi"
+    value: "10.5281/zenodo.5633988"
+url: "https://doi.org/10.5281/zenodo.5633988"
+repository-code: "https://github.com/AP6YC/MetaICVI.jl"
+license: "MIT"
 institution:
   name: "Missouri University of Science and Technology"
+
+# Preferred citation of the preprint paper
+message: "Please cite this software using the metadata from 'preferred-citation'."
+preferred-citation:
+
+  # Authors list for the JOSS paper
+  authors:
+    - family-names: "Melton"
+      given-names: "Niklas"
+      orcid: "https://orcid.org/0000-0001-9625-7086"
+      email:
+    - family-names: "Petrenko"
+      given-names: "Sasha"
+      orcid: "https://orcid.org/0000-0003-2442-8901"
+      website: "https://ap6yc.github.io/"
+      email: "sap625@mst.edu"
+      alias: "AP6YC"
+      affiliation: "Missouri University of Science and Technology"
+    - family-names: "Wunsch"
+      given-names: "Donald"
+      name-suffix: "II"
+      orcid: "https://orcid.org/0000-0002-9726-9051"
+      website: "https://people.mst.edu/faculty/dwunsch/"
+      email: "dwunsch@mst.edu"
+      alias: "dwunsch"
+      affiliation: "Missouri University of Science and Technology"
