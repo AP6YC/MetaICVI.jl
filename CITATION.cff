@@ -1,10 +1,31 @@
+# CFF version for the document
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+
+# Author list
 authors:
   - family-names: Petrenko
     given-names: Sasha
     orcid: https://orcid.org/0000-0003-2442-8901
-title: AP6YC/NumericalTypeAliases.jl
-version: v0.2.2
-doi: https://doi.org/10.5281/zenodo.5748453
-date-released: 2022-11-18
+    website: https://ap6yc.github.io/
+    email: sap625@mst.edu
+    alias: AP6YC
+    affiliation: "Missouri University of Science and Technology"
+
+# Repository title and descriptors
+title: "AP6YC/MetaICVI.jl"
+message: "If you use this software, please cite it as below."
+keywords:
+  - ICVI
+  - CVI
+  - "Cluster Validity Indices"
+  - "Incremental Cluster Validity Indices"
+  - "Cluster Validation"
+identifiers:
+  - description: "The DOI of the latest MetaICVI.jl Zenodo archive."
+    type: doi
+    value: 10.5281/zenodo.5633988
+url: https://doi.org/10.5281/zenodo.5633988
+repository-code: https://github.com/AP6YC/MetaICVI.jl
+license: MIT
+institution:
+  name: "Missouri University of Science and Technology"
