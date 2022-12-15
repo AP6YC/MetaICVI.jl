@@ -158,7 +158,7 @@ You may also cite this repository with the following BibTeX entry:
   title = "{Meta-iCVIs: Ensemble Validity Metrics for Concise Labeling of Correct, Under- or Over-Partitioning in Streaming Clustering}",
   year = "2022",
   month = "12",
-  url = "https://www.techrxiv.org/articles/preprint/Meta-iCVIs_Ensemble_Validity_Metrics_for_Concise_Labeling_of_Correct_Under-_or_Over-Partitioning_in_Streaming_Clustering/21685214",
-  doi = "10.36227/techrxiv.21685214.v1"
+  url = "https://doi.org/10.36227/techrxiv.21685214",
+  doi = "10.36227/techrxiv.21685214"
 }
 ```
