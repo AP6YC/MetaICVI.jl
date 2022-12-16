@@ -29,9 +29,10 @@ A Julia implementation of the Meta-ICVI method as a separate package.
     - [Basic Usage](#basic-usage)
     - [Advanced Usage](#advanced-usage)
   - [Contributing](#contributing)
-  - [Credits](#credits)
+  - [Acknowledgements](#acknowledgements)
     - [Authors](#authors)
     - [License](#license)
+    - [Citation](#citation)
 
 ## Usage
 
@@ -41,11 +42,12 @@ You must install `PyCallJLD.jl` alongside `MetaICVI.jl` for correct classifier m
 This is because the `ScikitLearn.jl` dependency requires saving/loading with the `JLD.jl` package on `PyCall.jl` objects, and PyCallJLD correctly loads the serialized object definitions into the current workspace.
 Otherwise, the classifier is loaded a memory block wrapped in a PyObject type, breaking inference and other operations.
 
-`PyCallJLD.jl` is distributed as a Julia package, available on [JuliaHub](https://juliahub.com/).
-Its installation follows the usual Julia package installation procedure, interactively:
+Both `PyCallJLD.jl` and `MetaICVI.jl` are distributed as Julia packages, available on [JuliaHub](https://juliahub.com/).
+Their installation followa the usual Julia package installation procedure, and they can both be installed simultaneously interactively:
 
-```julia
-] add PyCallJLD
+```julia-repl
+julia> ]
+(@v1.8) pkg> add PyCallJLD MetaICVI
 ```
 
 or programmatically:
@@ -53,13 +55,14 @@ or programmatically:
 ```julia
 using Pkg
 Pkg.add("PyCallJLD")
+Pkg.add("MetaICVI")
 ```
 
-At the time of this writing, `MetaICVI.jl` is not released on JuliaHub.
-To install `MetaICVI.jl`, you may add the package directly from GitHub:
+You may also get the most recent changes directly from the GitHub repository with:
 
-```julia
-] add https://github.com/AP6YC/MetaICVI.jl
+```julia-repl
+julia> ]
+(@v1.8) pkg> add https://github.com/AP6YC/MetaICVI.jl
 ```
 
 or programmatically, also with the GitHub link:
@@ -71,49 +74,49 @@ Pkg.add("https://github.com/AP6YC/MetaICVI.jl")
 
 ### Basic Usage
 
-First, load both `PyCall` and `MetaICVI` with
+First, load both `PyCallJLD` and `MetaICVI` with
 
 ```julia
-using PyCall, MetaICVI
+using PyCallJLD, MetaICVI
 ```
 
 Then, create a MetaICVI module with the default constructor
 
 ```julia
-    metaicvi = MetaICVIModule()
+metaicvi = MetaICVIModule()
 ```
 
 and retrieve the MetaICVI value iteratively with
 
 ```julia
-    get_metaicvi(metaicvi, sample, label)
+get_metaicvi(metaicvi, sample, label)
 ```
 
 where `sample` is a real-valued vector and `label` is an integer.
 
 ### Advanced Usage
 
-After loading both `PyCall` and `MetaICVI`
+After loading both `PyCallJLD` and `MetaICVI`
 
 ```julia
-using PyCall, MetaICVI
+using PyCallJLD, MetaICVI
 ```
 
 you can specify the MetaICVI options with
 
 ```julia
-    opts = MetaICVIOpts(
-        classifier_selection = :SGDClassifier,
-        classifier_opts = (loss="log", max_iter=30),
-        icvi_window = 5,
-        correlation_window = 5,
-        n_rocket = 5,
-        rocket_file = "data/models/rocket.jld2",
-        classifier_file = "data/models/classifier.jld",
-        display = true,
-        fail_on_missing = false
-    )
-    metaicvi = MetaICVIModule(opts)
+opts = MetaICVIOpts(
+    classifier_selection = :SGDClassifier,
+    classifier_opts = (loss="log", max_iter=30),
+    icvi_window = 5,
+    correlation_window = 5,
+    n_rocket = 5,
+    rocket_file = "data/models/rocket.jld2",
+    classifier_file = "data/models/classifier.jld",
+    display = true,
+    fail_on_missing = false
+)
+metaicvi = MetaICVIModule(opts)
 ```
 
 The options are
@@ -131,7 +134,8 @@ The options are
 
 Please raise an [issue][issues-url].
 
-## Credits
+## Acknowledgements
+
 
 ### Authors
 
@@ -141,3 +145,20 @@ Please raise an [issue][issues-url].
 
 This software is developed by the Applied Computational Intelligence Laboratory (ACIL) of the Missouri University of Science and Technology (S&amp;T) under the supervision of Teledyne Technologies for the DARPA L2M program.
 Read the [License](LICENSE).
+
+### Citation
+
+This project has a [citation file](CITATION.cff) file that generates citation information for the package and corresponding JOSS paper, which can be accessed at the "Cite this repository button" under the "About" section of the GitHub page.
+
+You may also cite this repository with the following BibTeX entry:
+
+```bibtex
+@article{Melton2022,
+  author = "Niklas Melton and Sasha Petrenko and Donald Wunsch",
+  title = "{Meta-iCVIs: Ensemble Validity Metrics for Concise Labeling of Correct, Under- or Over-Partitioning in Streaming Clustering}",
+  year = "2022",
+  month = "12",
+  url = "https://doi.org/10.36227/techrxiv.21685214",
+  doi = "10.36227/techrxiv.21685214"
+}
+```

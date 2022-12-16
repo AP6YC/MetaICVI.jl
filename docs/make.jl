@@ -1,4 +1,9 @@
+"""
+    make.jl
 
+This file builds the documentation for the ClusterValidityIndices.jl package
+using Documenter.jl and other tools.
+"""
 
 # --------------------------------------------------------------------------- #
 # DEPENDENCIES
@@ -7,7 +12,6 @@
 # using MetaICVI
 using
     Documenter
-
 
 # --------------------------------------------------------------------------- #
 # SETUP
