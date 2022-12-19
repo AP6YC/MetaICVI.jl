@@ -12,6 +12,7 @@ JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 NumericalTypeAliases = "be9b823e-291e-41a1-b8ce-806204e78f92"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+PrecompileSignatures = "91cefc8d-f054-46dc-8f8c-26e11d7c5411"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 PyCallJLD = "de320387-30cd-5f83-91a8-a6e0ae8b8444"
@@ -20,11 +21,11 @@ ScikitLearn = "3646fa90-6ef7-5e7e-9f22-8aca16db6324"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
-DocStringExtensions = "0.8, 0.9"
-NumericalTypeAliases = "0.1, 0.2"
 ClusterValidityIndices = "0.6"
+DocStringExtensions = "0.8, 0.9"
 JLD = "0.12"
 JLD2 = "0.4"
+NumericalTypeAliases = "0.1, 0.2"
 Parameters = "0.12"
 ProgressMeter = "1"
 PyCall = "1"
@@ -36,9 +37,9 @@ julia = "1"
 [extras]
 AdaptiveResonance = "3d72adc0-63d3-4141-bf9b-84450dd0395b"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 
 [targets]
 test = ["AdaptiveResonance", "DelimitedFiles", "Statistics", "Test", "SafeTestsets"]
