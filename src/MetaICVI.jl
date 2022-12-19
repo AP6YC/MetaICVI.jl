@@ -62,6 +62,7 @@ using
 using StatsBase: corspearman        # Rank correlation for cvi criterion values
 using ProgressMeter: @showprogress  # Data loading progress for training
 using DelimitedFiles: readdlm       # Loading cvi data
+using PrecompileSignatures: @precompile_signatures  # Precompile concrete type methods
 # using ScikitLearn.Skcore: FitBit
 
 # -----------------------------------------------------------------------------
@@ -105,5 +106,12 @@ export
     get_features,           # Convenience function for just features
     get_training_features,  # Load data and process features for classifier training
     train_and_save
+
+# -----------------------------------------------------------------------------
+# PRECOMPILE
+# -----------------------------------------------------------------------------
+
+# Precompile any concrete-type function signatures
+@precompile_signatures(MetaICVI)
 
 end
