@@ -7,8 +7,11 @@
 include("rocket.jl")
 using .Rocket
 
-using Random
 using JLD2
+include("PyCallJLD2.jl")
+using .PyCallJLD2
+
+using Random
 
 # -----------------------------------------------------------------------------
 # CONSTANTS
@@ -66,8 +69,8 @@ julia> MetaICVIOpts()
     """
     Classifier file location.
     """
-    classifier_file::String = module_dir("data", "models", "classifier.jld")
-    # classifier_file::String = module_dir("data", "models", "classifier.jld2")
+    classifier_file::String = module_dir("data", "models", "classifier.jld2")
+    # classifier_file::String = module_dir("data", "models", "classifier.jld")
 
     """
     Display flag.
@@ -320,8 +323,8 @@ Load the classifier at the filepath.
 - `filepath::String`: location of the classifier .jld file.
 """
 function load_classifier(filepath::String)
-    return MetaICVIClassifier(JLD.load(filepath, "classifier"))
-    # return MetaICVIClassifier(JLD2.load(filepath, "classifier"))
+    # return MetaICVIClassifier(JLD.load(filepath, "classifier"))
+    return MetaICVIClassifier(JLD2.load(filepath, "classifier"))
     # return load_object(filepath)
     # return BSON.load(filepath, @__MODULE__)["classifier"]
 end
@@ -334,8 +337,8 @@ Save the classifier at the filepath.
 - `filepath::String`: name/path to save the classifier .jld file.
 """
 function save_classifier(classifier::MetaICVIClassifier, filepath::String)
-    JLD.save(filepath, "classifier", classifier)
-    # jldsave(filepath; classifier)
+    # JLD.save(filepath, "classifier", classifier)
+    jldsave(filepath; classifier)
     # save_object(filepath, classifier)
     # bson(filepath, Dict("classifier" => classifier))
 end
