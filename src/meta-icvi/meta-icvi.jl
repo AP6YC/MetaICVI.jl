@@ -338,7 +338,8 @@ Save the classifier at the filepath.
 """
 function save_classifier(classifier::MetaICVIClassifier, filepath::String)
     # JLD.save(filepath, "classifier", classifier)
-    jldsave(filepath; classifier)
+    # jldsave(filepath; classifier)
+    JLD2.save(filepath, "classifier", classifier)
     # save_object(filepath, classifier)
     # bson(filepath, Dict("classifier" => classifier))
 end
