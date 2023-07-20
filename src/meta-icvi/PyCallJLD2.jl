@@ -59,15 +59,18 @@ function JLD2.rconvert(::Type{PyObject}, pyo_ser::PyObjectSerialization)
         pycall(
             loads,
             PyObject,
+            # pyincref(PyObject(
             PyObject(
                 PyCall.@pycheckn ccall(
                     @pysym(PyCall.PyString_FromStringAndSize),
+                    # @pysym(PyCall.PyUnicode_FromStringAndSize),
                     PyPtr,
                     (Ptr{UInt8}, Int),
                     pyo_ser.repr,
                     sizeof(pyo_ser.repr)
                 )
             )
+            # ))
         )
     end
 
