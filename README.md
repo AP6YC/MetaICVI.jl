@@ -110,7 +110,7 @@ you can specify the MetaICVI options with
 ```julia
 opts = MetaICVIOpts(
     classifier_selection = :SGDClassifier,
-    classifier_opts = (loss="log", max_iter=30),
+    classifier_opts = (loss="log_loss", max_iter=30),
     icvi_window = 5,
     correlation_window = 5,
     n_rocket = 5,

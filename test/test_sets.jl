@@ -46,7 +46,7 @@ include("test_utils.jl")
     catch e
         @warn "Caught error" e
         # Cleanup
-        rm(models_dir("classifier.jld"))
+        rm(models_dir("classifier.jld2"))
         rm(models_dir("rocket.jld2"))
     end
 
@@ -87,7 +87,7 @@ include("test_utils.jl")
     @test all(performances_orig .<= 1)
 
     # Cleanup
-    rm(models_dir("classifier.jld"))
+    rm(models_dir("classifier.jld2"))
     rm(models_dir("rocket.jld2"))
 end
 

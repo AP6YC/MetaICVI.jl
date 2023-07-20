@@ -44,7 +44,7 @@ julia> MetaICVIOpts()
     """
     Scikitlearn classifier keyword arguments.
     """
-    classifier_opts::NamedTuple = (loss="log", max_iter=30)
+    classifier_opts::NamedTuple = (loss="log_loss", max_iter=30)
 
     """
     Size of ICVI window: [1, infty).
