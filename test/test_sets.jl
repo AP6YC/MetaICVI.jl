@@ -6,18 +6,29 @@ The main collection of tests for the `MetaICVI.jl` package.
 This file loads common utilities and aggregates all other unit tests files.
 """
 
+# -----------------------------------------------------------------------------
+# DEPENDENCIES
+# -----------------------------------------------------------------------------
 
 # using PyCall
 # using JLD
 # using ClusterValidityIndices
 using
     MetaICVI,
-    PyCallJLD,
-    Test,
+    # PyCallJLD,
+    # Test,
     Logging
+
+# -----------------------------------------------------------------------------
+# INCLUDES
+# -----------------------------------------------------------------------------
 
 # Include some test utilities (data loading, etc.)
 include("test_utils.jl")
+
+# -----------------------------------------------------------------------------
+# UNIT TESTS
+# -----------------------------------------------------------------------------
 
 # MetaICVI module testing
 @testset "MetaICVI.jl" begin
@@ -62,14 +73,16 @@ include("test_utils.jl")
     new_metaicvi = MetaICVIModule(opts)
 
     # Load the data and test across all supervised modules
-    data = load_iris(testing_dir("Iris.csv"))
+    # data = load_iris(testing_dir("Iris.csv"))
     # data.train_y = relabel_cvi_data(data.train_y)
 
     # Iterate over the data
-    n_data = length(data.train_y)
+    # n_data = length(data.train_y)
+    n_data = length(test_y)
     performances = zeros(n_data)
     performances_orig = zeros(n_data)
-    for i = 1:n_data
+    # for i = 1:n_data
+    for i = 1:100
         # sample = data.train_x[:, i]
         # label = data.train_y[i]
         # performances[i] = get_metaicvi(metaicvi, sample, label)
