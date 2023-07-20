@@ -1,8 +1,12 @@
 """
     make.jl
 
+# Description
 This file builds the documentation for the MetaICVI.jl package
 using Documenter.jl and other tools.
+
+# Authors
+- Sasha Petrenko <petrenkos@mst.edu>
 """
 
 # --------------------------------------------------------------------------- #
@@ -86,6 +90,9 @@ makedocs(
         ]
     ],
 )
+
+# 3. postprocess after makedocs
+postprocess_cb()
 
 # -----------------------------------------------------------------------------
 # DEPLOY
