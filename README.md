@@ -1,10 +1,10 @@
 # MetaICVI
 
-A Julia implementation of the Meta-ICVI method as a separate package.
+A Julia implementation of the Meta-ICVI method as a standalone package.
 
-| **Documentation**  | **Build Status** | **Coverage** |
-|:------------------:|:----------------:|:------------:|
-| [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][ci-img]][ci-url] | [![Codecov][codecov-img]][codecov-url]
+| **Documentation**  | **Build Status** | **Coverage** | **JuliaHub** |
+|:------------------:|:----------------:|:------------:|:------------:|
+| [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][ci-img]][ci-url] | [![Codecov][codecov-img]][codecov-url] | [![pkgeval][pkgeval-img]][pkgeval-url] |
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://AP6YC.github.io/MetaICVI.jl/stable
@@ -17,6 +17,9 @@ A Julia implementation of the Meta-ICVI method as a separate package.
 
 [codecov-img]: https://codecov.io/gh/AP6YC/MetaICVI.jl/branch/main/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/AP6YC/MetaICVI.jl
+
+[pkgeval-img]: https://juliahub.com/docs/MetaICVI/pkgeval.svg
+[pkgeval-url]: https://juliahub.com/ui/Packages/MetaICVI/N0cWm
 
 [issues-url]: https://github.com/AP6YC/MetaICVI.jl/issues
 
@@ -47,7 +50,7 @@ Their installation followa the usual Julia package installation procedure, and t
 
 ```julia-repl
 julia> ]
-(@v1.8) pkg> add PyCallJLD MetaICVI
+(@v1.9) pkg> add PyCallJLD MetaICVI
 ```
 
 or programmatically:
@@ -62,7 +65,7 @@ You may also get the most recent changes directly from the GitHub repository wit
 
 ```julia-repl
 julia> ]
-(@v1.8) pkg> add https://github.com/AP6YC/MetaICVI.jl
+(@v1.9) pkg> add https://github.com/AP6YC/MetaICVI.jl
 ```
 
 or programmatically, also with the GitHub link:
@@ -135,7 +138,6 @@ The options are
 Please raise an [issue][issues-url].
 
 ## Acknowledgements
-
 
 ### Authors
 
