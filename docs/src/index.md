@@ -18,20 +18,20 @@ This documentation is split into the following sections:
 ```@contents
 Pages = [
     "man/guide.md",
-    "man/examples.md",
+    "../examples/index.md",
     "man/contributing.md",
     "man/full-index.md",
 ]
 Depth = 1
 ```
 
-The [Package Guide](@ref) provides a tutorial to the full usage of the package, while [Examples](@ref) gives sample workflows using a variety of ART modules.
+The [Package Guide](@ref) provides a tutorial to the full usage of the package, while [Examples](@ref examples) demonstrates some workflows using the `MetaICVI.jl` package.
 
 Instructions on how to contribute to the package are found in [Contributing](@ref), and docstrings for every element of the package is listed in the [Index](@ref main-index).
 
 ## Citation
 
-If you make use of this project, please generate your citation with the [citation file](../CITATION.cff) file of the repository.
+If you make use of this project, please generate your citation with the [citation file](../../CITATION.cff) file of the repository.
 Alternatively, you may use the following BibTeX entry for the JOSS paper associated with the repository:
 
 ```bibtex

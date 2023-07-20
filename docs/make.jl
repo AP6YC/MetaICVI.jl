@@ -1,7 +1,7 @@
 """
     make.jl
 
-This file builds the documentation for the ClusterValidityIndices.jl package
+This file builds the documentation for the MetaICVI.jl package
 using Documenter.jl and other tools.
 """
 
@@ -11,7 +11,9 @@ using Documenter.jl and other tools.
 
 # using MetaICVI
 using
-    Documenter
+    Documenter,
+    DemoCards,
+    Pkg
 
 # --------------------------------------------------------------------------- #
 # SETUP
@@ -50,30 +52,46 @@ end
 # GENERATE
 # --------------------------------------------------------------------------- #
 
-DocMeta.setdocmeta!(MetaICVI, :DocTestSetup, :(using MetaICVI); recursive=true)
+# DocMeta.setdocmeta!(MetaICVI, :DocTestSetup, :(using MetaICVI); recursive=true)
 
-makedocs(;
+# Generate the demo files
+# this is the relative path to docs/
+demopage, postprocess_cb, demo_assets = makedemos("examples")
+
+assets = [
+    joinpath("assets", "favicon.ico"),
+]
+
+# if there are generated css assets, pass it to Documenter.HTML
+isnothing(demo_assets) || (push!(assets, demo_assets))
+
+# Make the documentation
+makedocs(
     modules=[MetaICVI],
     authors="Sasha Petrenko",
     repo="https://github.com/AP6YC/MetaICVI.jl/blob/{commit}{path}#{line}",
     sitename="MetaICVI.jl",
     format=Documenter.HTML(;
-        prettyurls=get(ENV, "CI", "false") == "true",
+    prettyurls = get(ENV, "CI", nothing) == "true",
         canonical="https://AP6YC.github.io/MetaICVI.jl",
-        assets=String[],
+        assets = assets,
     ),
     pages=[
         "Home" => "index.md",
         "Tutorial" => [
             "Guide" => "man/guide.md",
-            "Examples" => "man/examples.md",
+            demopage,
             "Contributing" => "man/contributing.md",
             "Index" => "man/full-index.md"
         ]
     ],
 )
 
+# -----------------------------------------------------------------------------
+# DEPLOY
+# -----------------------------------------------------------------------------
+
 deploydocs(;
     repo="github.com/AP6YC/MetaICVI.jl",
-    devbranch = "main",
+    devbranch = "devbranch",
 )
