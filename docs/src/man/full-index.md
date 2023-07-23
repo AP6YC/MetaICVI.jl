@@ -1,8 +1,15 @@
 # [Index](@id main-index)
 
-This page lists the core methods and types of the `Julia` component of the `MetaICVI` project.
+This page lists the core functions and types of the `Julia` component of the `MetaICVI.jl` package.
 
-## Index
+## ["Table" of Contents](@id index-toc)
+
+| **Modules** | **Functions** | **Types** | **Constants** |
+|:-----------:|:-------------:|:---------:|:-------------:|
+| [Index](@ref index-modules) | [Index](@ref index-functions) | [Index](@ref index-types) | [Index](@ref index-constants) |
+| [Docs](@ref index-modules-docs) | [Docs](@ref index-functions-docs) | [Docs](@ref index-types-docs) | [Docs](@ref index-constants-docs) |
+
+## [Index](@id index)
 
 This section enumerates the names exported by the package, each of which links to its corresponding [Documentation](@ref index-docs).
 
@@ -10,32 +17,44 @@ This section enumerates the names exported by the package, each of which links t
 
 ```@index
 Pages   = ["full-index.md"]
-Modules = [MetaICVI]
+Modules = [
+    MetaICVI,
+    MetaICVI.Rocket,
+]
 Order = [:module]
 ```
 
-### [Methods](@id index-methods)
+### [Functions](@id index-functions)
 
 ```@index
 Pages   = ["full-index.md"]
-Modules = [MetaICVI]
-Order = [:function]
+Modules = [
+    MetaICVI,
+    MetaICVI.Rocket,
+]
+Order   = [:function]
 ```
 
 ### [Types](@id index-types)
 
 ```@index
 Pages   = ["full-index.md"]
-Modules = [MetaICVI]
-Order = [:type]
+Modules = [
+    MetaICVI,
+    MetaICVI.Rocket,
+]
+Order   = [:type]
 ```
 
 ### [Constants](@id index-constants)
 
 ```@index
 Pages   = ["full-index.md"]
-Modules = [MetaICVI]
-Order = [:constant]
+Modules = [
+    MetaICVI,
+    MetaICVI.Rocket,
+]
+Order   = [:constant]
 ```
 
 ## [Docs](@id index-docs)
@@ -45,31 +64,43 @@ This section lists the documentation for every exported name of the `MetaICVI` p
 ### [Modules](@id index-modules-docs)
 
 ```@autodocs
-Modules = [MetaICVI]
+Modules = [
+    MetaICVI,
+    MetaICVI.Rocket,
+]
 Private = false
-Order = [:module]
+Order   = [:module]
 ```
 
 ### [Functions](@id index-functions-docs)
 
 ```@autodocs
-Modules = [MetaICVI]
+Modules = [
+    MetaICVI,
+    MetaICVI.Rocket,
+]
 Private = false
-Order = [:function]
+Order   = [:function]
 ```
 
 ### [Types](@id index-types-docs)
 
 ```@autodocs
-Modules = [MetaICVI]
+Modules = [
+    MetaICVI,
+    MetaICVI.Rocket,
+]
 Private = false
-Order = [:type]
+Order   = [:type]
 ```
 
 ### [Constants](@id index-constants-docs)
 
 ```@autodocs
-Modules = [MetaICVI]
+Modules = [
+    MetaICVI,
+    MetaICVI.Rocket,
+]
 Private = false
-Order = [:constant]
+Order   = [:constant]
 ```
