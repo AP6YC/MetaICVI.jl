@@ -82,11 +82,14 @@ makedocs(
     ),
     pages=[
         "Home" => "index.md",
-        "Tutorial" => [
+        "Manual" => [
             "Guide" => "man/guide.md",
             demopage,
+        ],
+        "Internals" => [
+            "Index" => "man/full-index.md",
+            "Dev Index" => "man/dev-index.md",
             "Contributing" => "man/contributing.md",
-            "Index" => "man/full-index.md"
         ]
     ],
 )

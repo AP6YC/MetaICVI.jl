@@ -23,6 +23,13 @@ const MetaICVIClassifier = PyCall.PyObject
 # Top of the module for default paths
 const module_dir(paths...) = joinpath(dirname(pathof(@__MODULE__)), "..", paths...)
 
+"""
+Common docstring: a [`MetaICVIModule`](@ref) used as a function argument.
+"""
+const ARG_METAICVIMODULE = """
+- `metaicvi::MetaICVIModule`: the [`MetaICVIModule`](@ref).
+"""
+
 # -----------------------------------------------------------------------------
 # STRUCTURES
 # -----------------------------------------------------------------------------
@@ -47,17 +54,17 @@ julia> MetaICVIOpts()
     classifier_opts::NamedTuple = (loss="log_loss", max_iter=30)
 
     """
-    Size of ICVI window: [1, infty).
+    Size of ICVI window: `[1, infty)`.
     """
     icvi_window = 5; @assert icvi_window >= 1
 
     """
-    Size of correlation window: [1, infty).
+    Size of correlation window: `[1, infty)`.
     """
     correlation_window = 5; @assert correlation_window >= 1
 
     """
-    Number of rocket kernels: [1, infty).
+    Number of rocket kernels: `[1, infty)`.
     """
     n_rocket = 5; @assert n_rocket >= 1
 
@@ -288,7 +295,7 @@ end
 Error handle saving of the metaicvi classifier.
 
 # Arguments
-- `metaicvi::MetaICVIModule`: metaicvi module containing the classifier and path for saving.
+$ARG_METAICVIMODULE
 """
 function safe_save_classifier(metaicvi::MetaICVIModule)
     # If we specified a file but none was there, then save to that file
@@ -304,7 +311,7 @@ end
 Error handle saving of the metaicvi rocket kernels.
 
 # Arguments
-- `metaicvi::MetaICVIModule`: metaicvi module containing the classifier and path for saving.
+$ARG_METAICVIMODULE
 """
 function safe_save_rocket(metaicvi::MetaICVIModule)
     # If we specified a file but none was there, then save to that file
@@ -346,6 +353,9 @@ end
 
 """
 Saves the MetaICVI object, including its rocket kernels and serialized classifier.
+
+# Arguments
+- `metaicvi::MetaICVIModule`: the [`MetaICVIModule`](@ref) to save to the files located in its `opts`.
 """
 function save_metaicvi(metaicvi::MetaICVIModule)
     # Save the rocket kernels used
@@ -355,10 +365,10 @@ function save_metaicvi(metaicvi::MetaICVIModule)
 end
 
 """
-Compute and store the icvi criterion values.
+Compute and store the ICVI criterion values.
 
 # Arguments
-- `metaicvi::MetaICVIModule`: the Meta-ICVI module.
+$ARG_METAICVIMODULE
 - `sample::RealVector`: the sample used for clustering.
 - `label::Integer`: the label prescribed to the sample by the clustering algorithm.
 """
@@ -379,7 +389,7 @@ end
 Compute and store the rank correlations from the cvi values.
 
 # Arguments
-- `metaicvi::MetaICVIModule`: the Meta-ICVI module.
+$ARG_METAICVIMODULE
 """
 function get_correlations(metaicvi::MetaICVIModule)
     # If the cvi window is big enough, compute the correlations
@@ -400,7 +410,7 @@ end
 Compute and store the rocket features.
 
 # Arguments
-- `metaicvi::MetaICVIModule`: the Meta-ICVI module.
+$ARG_METAICVIMODULE
 """
 function get_rocket_features(metaicvi::MetaICVIModule)
     # If there are enough correlations, compute compute the meta-icvi value
@@ -411,13 +421,14 @@ function get_rocket_features(metaicvi::MetaICVIModule)
     end
 
     # metaicvi.features = transpose([metaicvi.features])
+    return
 end
 
 """
 Checks if the classifier is pretrained to permit inference.
 
 # Arguments
-- `metaicvi::MetaICVIModule`: metaicvi module containing the classifier to check.
+$ARG_METAICVIMODULE
 """
 function is_pretrained(metaicvi::MetaICVIModule)
     # Check if the model is pretrained with the isfit function
@@ -429,7 +440,7 @@ end
 Compute and store the metaicvi value from the classifier.
 
 # Arguments
-- `metaicvi::MetaICVIModule`: the Meta-ICVI module.
+$ARG_METAICVIMODULE
 """
 function get_probability(metaicvi::MetaICVIModule)
     # If we have previously computed features

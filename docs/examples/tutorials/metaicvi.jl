@@ -1,6 +1,6 @@
 # ---
 # title: MetaICVI
-# id: metaicvi
+# id: metaicvi-example
 # date: 2023-5-15
 # cover: ../assets/clustering.png
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
