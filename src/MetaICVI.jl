@@ -1,5 +1,3 @@
-__precompile__()
-
 """
 Main module for `MetaICVI.jl`, a Julia package implementing the MetaICVI method.
 
