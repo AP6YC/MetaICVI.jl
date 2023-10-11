@@ -1,4 +1,8 @@
 [deps]
+DemoCards = "311a05b2-6137-4a5a-b473-18580a3d38b5"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
 MetaICVI = "778c5047-3e82-4d04-81b5-6fafe2d2d704"
+NumericalTypeAliases = "be9b823e-291e-41a1-b8ce-806204e78f92"
+PyCallJLD = "de320387-30cd-5f83-91a8-a6e0ae8b8444"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
