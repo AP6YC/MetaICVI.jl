@@ -49,8 +49,8 @@ using
     Logging,                        # Logging is used for operation diagnostics
     Parameters,                     # MetaICVIOpts are Parameters structs
     PyCall,                         # PyCall object definition
-    JLD,                            # JLD is currently recommended for saving/loading ScikitLearn objects
-    PyCallJLD,                      # PyCall definition for serialization with JLD
+    # JLD,                            # JLD is currently recommended for saving/loading ScikitLearn objects
+    # PyCallJLD,                      # PyCall definition for serialization with JLD
     ScikitLearn,                    # Classifiers are scikit-learn pyobjects
     DocStringExtensions,
     # using BSON
