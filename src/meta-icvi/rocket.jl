@@ -1,78 +1,153 @@
 __precompile__()
 
+"""
+Main module for the `Rocket.jl` method.
+
+$(DOCSTRING_ATTRIBUTION)
+
+# Imports
+
+The following names are imported by the package as dependencies:
+$(IMPORTS)
+
+# Exports
+
+The following names are exported and available when `using` the package:
+$(EXPORTS)
+"""
 module Rocket
 
-# Angus Dempster, Francois Petitjean, Geoff Webb
-#
-# @article{dempster_etal_2020,
-#   author  = {Dempster, Angus and Petitjean, Fran\c{c}ois and Webb, Geoffrey I},
-#   title   = {ROCKET: Exceptionally fast and accurate time classification using random convolutional kernels},
-#   year    = {2020},
-#   journal = {Data Mining and Knowledge Discovery},
-#   doi     = {https://doi.org/10.1007/s10618-020-00701-z}
-# }
-#
-# https://arxiv.org/abs/1910.13051 (preprint)
-
 # -----------------------------------------------------------------------------
-# IMPORTS
+# DEPENDENCIES
 # -----------------------------------------------------------------------------
 
-# using StatsBase: ZScoreTransform, fit!
+# Full usings (which supports comma-separated import notation)
 using
+    DocStringExtensions,
     Random,
     NumericalTypeAliases
 
+# Colon syntax broken into new lines
 using JLD2: save_object, load_object
 using StatsBase: sample
+using PrecompileSignatures: @precompile_signatures  # Precompile concrete type methods
+
+# -----------------------------------------------------------------------------
+# CONSTANTS
+# -----------------------------------------------------------------------------
+
+"""
+Common docstring: description of attribution for the Rocket module for inclusion in relevant docstrings.
+"""
+DOCSTRING_ATTRIBUTION = """
+# Attribution
+
+## Programmer
+
+- Sasha Petrenko <petrenkos@mst.edu> @AP6YC
+
+## Original Authors
+
+- Angus Dempster
+- Francois Petitjean
+- Geoff Webb
+
+## Bibtex Entry
+
+```bibtex
+@article{dempster_etal_2020,
+    author  = {Dempster, Angus and Petitjean, Francois and Webb, Geoffrey I},
+    title   = {ROCKET: Exceptionally fast and accurate time classification using random convolutional kernels},
+    year    = {2020},
+    journal = {Data Mining and Knowledge Discovery},
+    doi     = {https://doi.org/10.1007/s10618-020-00701-z}
+}
+```
+
+## Citation Links
+
+- [preprint](https://arxiv.org/abs/1910.13051)
+- [DOI](https://doi.org/10.1007/s10618-020-00701-z)
+"""
 
 # -----------------------------------------------------------------------------
 # STRUCTURES
 # -----------------------------------------------------------------------------
 
 """
-    RocketKernel
-
 Structure containing information about one rocket kernel.
 """
 struct RocketKernel
+    """
+    The length of the features.
+    """
     length::Int
+
+    """
+    The vector of weights corresponding to the features.
+    """
     weight::Vector{Float}
+
+    """
+    The internal Rocket bias parameter, computed during construction.
+    """
     bias::Float
+
+    """
+    The internal Rocket dilation parameter, computed during construction.
+    """
     dilation::Int
+
+    """
+    The internal Rocket padding parameter, computed during construction.
+    """
     padding::Int
 end
 
 """
-    RocketModule
-
 Structure containing a vector of rocket kernels.
 
-# References
+# Attribution
 
-## Authors
-Angus Dempster, Francois Petitjean, Geoff Webb
+## Programmer
+
+- Sasha Petrenko <petrenkos@mst.edu> @AP6YC
+
+## Original Authors
+
+- Angus Dempster
+- Francois Petitjean
+- Geoff Webb
 
 ## Bibtex Entry
+
+```bibtex
 @article{dempster_etal_2020,
-  author  = {Dempster, Angus and Petitjean, Francois and Webb, Geoffrey I},
-  title   = {ROCKET: Exceptionally fast and accurate time classification using random convolutional kernels},
-  year    = {2020},
-  journal = {Data Mining and Knowledge Discovery},
-  doi     = {https://doi.org/10.1007/s10618-020-00701-z}
+    author  = {Dempster, Angus and Petitjean, Francois and Webb, Geoffrey I},
+    title   = {ROCKET: Exceptionally fast and accurate time classification using random convolutional kernels},
+    year    = {2020},
+    journal = {Data Mining and Knowledge Discovery},
+    doi     = {https://doi.org/10.1007/s10618-020-00701-z}
 }
+```
 
 ## Arxiv Preprint Link
+
 https://arxiv.org/abs/1910.13051 (preprint)
 """
 mutable struct RocketModule
+    """
+    The list of Rocket kernels constituting a full Rocket module.
+    """
     kernels::Vector{RocketKernel}
 end
 
 """
-    RocketModule(input_length::Integer, n_kernels::Integer)
-
 Create a new RocketModule structure, requiring feature length and the number of kernels.
+
+# Arguments
+- `input_length::Integer`: the desired length of the kernel features.
+- `n_kernels::Integer`: the desired number of kernels to generate.
 """
 function RocketModule(input_length::Integer, n_kernels::Integer)
     # Declare our candidate kernel lengths
@@ -86,7 +161,7 @@ function RocketModule(input_length::Integer, n_kernels::Integer)
         # Compute kernel parameters
         _length = sample(candidate_lengths)
         _weight = randn(_length)
-        _bias = rand()*2 - 1
+        _bias = rand() * 2 - 1
         _dilation = Integer(floor(rand() * log2((input_length - 1) / (_length - 1))))
         _padding = Bool(rand(0:1)) ? Integer(floor(((_length - 1) * _dilation) / 2)) : 0
         # Create the kernel
@@ -104,11 +179,10 @@ function RocketModule(input_length::Integer, n_kernels::Integer)
 end
 
 """
-    RocketModule()
-
-Default constructor for the RocketModule object.
+Empty constructor for the RocketModule object.
 """
 function RocketModule()
+    # Create a default
     return RocketModule(5, 100)
 end
 
@@ -117,8 +191,6 @@ end
 # -----------------------------------------------------------------------------
 
 """
-    apply_kernel(kernel::RocketKernel, x::RealVector)
-
 Apply a single RocketModule kernel to the sequence x.
 
 # Arguments
@@ -149,8 +221,6 @@ function apply_kernel(kernel::RocketKernel, x::RealVector)
 end
 
 """
-    apply_kernels(rocket::RocketModule, x::RealVector)
-
 Run a vector of rocket kernels along a sequence x.
 
 # Arguments
@@ -174,8 +244,6 @@ function apply_kernels(rocket::RocketModule, x::RealVector)
 end
 
 """
-    save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
-
 Save the rocket parameters to a .jld2 file.
 
 # Arguments
@@ -188,8 +256,6 @@ function save_rocket(rocket::RocketModule, filepath::String="rocket.jld2")
 end
 
 """
-    load_rocket(filepath::String="rocket.jld2")
-
 Load and return a rocket module with existing parameters from a .jld2 file.
 
 # Arguments
@@ -216,5 +282,12 @@ export
     apply_kernels,
     load_rocket,
     save_rocket
+
+# -----------------------------------------------------------------------------
+# PRECOMPILE
+# -----------------------------------------------------------------------------
+
+# Precompile any concrete-type function signatures
+@precompile_signatures(Rocket)
 
 end
