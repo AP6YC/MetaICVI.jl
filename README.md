@@ -2,15 +2,38 @@
 
 A Julia implementation of the Meta-ICVI method as a standalone package.
 
-| **Documentation**  | **Build Status** | **Coverage** | **JuliaHub** |
-|:------------------:|:----------------:|:------------:|:------------:|
-| [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][ci-img]][ci-url] | [![Codecov][codecov-img]][codecov-url] | [![pkgeval][pkgeval-img]][pkgeval-url] |
+Please see the official [documentation][docs-dev-url] for usage and contribution guidelines.
+
+| **Documentation** | **Coverage** | **CI Status** | **Releases** |
+|:-----------------:|:------------:|:-------------:|:------------:|
+| [![Dev][docs-dev-img]][docs-dev-url] | [![Codecov][codecov-img]][codecov-url] | [![CI Status][ci-img]][ci-url] | [![Zenodo][zenodo-img]][zenodo-url] |
+| [![Stable][docs-stable-img]][docs-stable-url] | [![Coveralls][coveralls-img]][coveralls-url] | [![Documentation][doc-status-img]][doc-status-url] | [![version][version-img]][version-url] |
+| **Dependents** | **Issues** | **JuliaHub Status** | **Downloads** |
+| [![deps][deps-img]][deps-url] | [![GitHubIssues][issues-img]][issues-url] | [![JuliaHub][pkgeval-img]][pkgeval-url] | [![Downloads][downloads-img]][downloads-url] |
+
+[version-img]: https://juliahub.com/docs/General/MetaICVI/stable/version.svg
+[version-url]: https://juliahub.com/ui/Packages/General/MetaICVI
+
+[deps-img]: https://juliahub.com/docs/General/MetaICVI/stable/deps.svg
+[deps-url]: https://juliahub.com/ui/Packages/General/MetaICVI?t=2
+
+[downloads-img]: https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/MetaICVI
+[downloads-url]: https://pkgs.genieframework.com?packages=MetaICVI
+
+[issues-img]: https://img.shields.io/github/issues/AP6YC/MetaICVI.jl
+[issues-url]: https://github.com/AP6YC/MetaICVI.jl/issues
+
+[zenodo-img]: https://zenodo.org/badge/DOI/10.5281/zenodo.5633988.svg
+[zenodo-url]: https://doi.org/10.5281/zenodo.5633988
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://AP6YC.github.io/MetaICVI.jl/stable
 
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-dev-url]: https://AP6YC.github.io/MetaICVI.jl/dev
+
+[doc-status-img]: https://github.com/AP6YC/MetaICVI.jl/actions/workflows/Documentation.yml/badge.svg
+[doc-status-url]: https://github.com/AP6YC/MetaICVI.jl/actions/workflows/Documentation.yml
 
 [ci-img]: https://github.com/AP6YC/MetaICVI.jl/workflows/CI/badge.svg
 [ci-url]: https://github.com/AP6YC/MetaICVI.jl/actions
