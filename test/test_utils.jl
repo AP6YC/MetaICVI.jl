@@ -1,12 +1,26 @@
-using DelimitedFiles
-using Logging
-using Random
+"""
+    test_utils.jl
+
+# Description
+This file defines some common utilities for testing, such as loading and formatting datasets for testing.
+"""
+# -----------------------------------------------------------------------------
+# DEPENDENCIES
+# -----------------------------------------------------------------------------
+
+using
+    DelimitedFiles,
+    Logging,
+    NumericalTypeAliases,
+    Random,
+    Statistics
 # using StatsBase
-using Statistics
+
+# -----------------------------------------------------------------------------
+# STRUCTS
+# -----------------------------------------------------------------------------
 
 """
-    DataSplit
-
 A basic struct for encapsulating the four components of supervised training.
 """
 mutable struct DataSplit
@@ -14,15 +28,42 @@ mutable struct DataSplit
     test_x::Array
     train_y::Array
     test_y::Array
-    DataSplit(train_x, test_x, train_y, test_y) = new(train_x, test_x, train_y, test_y)
 end
 
-"""
-    DataSplit(data_x::Array, data_y::Array, ratio::Real)
+# -----------------------------------------------------------------------------
+# CONSTANTS
+# -----------------------------------------------------------------------------
 
-Return a DataSplit struct that is split by the ratio (e.g. 0.8).
+const ARG_DATA_X = """
+- `data_x::RealMatrix`: the matrix of features.
 """
-function DataSplit(data_x::Array, data_y::Array, ratio::Real ; shuffle=false)
+
+const ARG_DATA_Y = """
+- `data_y::IntegerVector`: the integered class labels as a vector.
+"""
+
+const ARG_RATIO = """
+- `ratio::Real`: the fractional ratio for the train/test split.
+"""
+
+const ARG_SHUFFLE = """
+- `shuffle::Bool=false`: optional, flag to preshuffle the data set.
+"""
+
+# -----------------------------------------------------------------------------
+# CONSTRUCTORS
+# -----------------------------------------------------------------------------
+
+"""
+Return a DataSplit struct that is split by the ratio (e.g. 0.8).
+
+# Arguments
+$ARG_DATA_X
+$ARG_DATA_Y
+$ARG_RATIO
+$ARG_SHUFFLE
+"""
+function DataSplit(data_x::RealMatrix, data_y::IntegerVector, ratio::Real ; shuffle::Bool=false)
     dim, n_samples = size(data_x)
     split_ind = Int(floor(n_samples*ratio))
 
@@ -45,9 +86,13 @@ function DataSplit(data_x::Array, data_y::Array, ratio::Real ; shuffle=false)
 end
 
 """
-    DataSplit(data_x::Array, data_y::Array, ratio::Real, seq_ind::Array)
-
 Sequential loading and ratio split of the data.
+
+# Arguments
+$ARG_DATA_X
+$ARG_DATA_Y
+$ARG_RATIO
+- `seq_ind::Array`:: the sequence IDs.
 """
 function DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real, seq_ind::Array)
     dim, n_data = size(data_x)
@@ -72,14 +117,20 @@ function DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real, seq_ind:
         test_y = [test_y; local_y[split_ind+1:end]]
     end
     return DataSplit(train_x, test_x, train_y, test_y)
-end # DataSplit(data_x::Array, data_y::Array, ratio::Real, seq_ind::Array)
+end
+
+# -----------------------------------------------------------------------------
+# FUNCTIONS
+# -----------------------------------------------------------------------------
 
 """
-    load_iris(data_path::String ; split_ratio::Real = 0.8)
-
 Loads the iris dataset for testing and examples.
+
+# Arugments
+- `data_path::AbstractString`: the path to the dataset.
+$ARG_RATIO
 """
-function load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
+function load_iris(data_path::AbstractString ; ratio::Real = 0.8)
     raw_data = readdlm(data_path,',')
     labels = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
     raw_x = convert(Array{Float, 2}, raw_data[2:end, 2:5])
@@ -102,7 +153,7 @@ function load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
     x = raw_x[:, ind_shuffle]
     y = raw_y[ind_shuffle]
 
-    data = DataSplit(x, y, split_ratio)
+    data = DataSplit(x, y, ratio)
 
     return data
 end

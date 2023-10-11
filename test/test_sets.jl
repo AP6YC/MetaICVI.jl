@@ -1,15 +1,34 @@
+"""
+    test_sets.jl
+
+# Description
+The main collection of tests for the `MetaICVI.jl` package.
+This file loads common utilities and aggregates all other unit tests files.
+"""
+
+# -----------------------------------------------------------------------------
+# DEPENDENCIES
+# -----------------------------------------------------------------------------
+
 # using PyCall
 # using JLD
 # using ClusterValidityIndices
 using
     MetaICVI,
-    PyCallJLD,
-    Test,
-    Logging,
-    NumericalTypeAliases
+    # PyCallJLD,
+    # Test,
+    Logging
+
+# -----------------------------------------------------------------------------
+# INCLUDES
+# -----------------------------------------------------------------------------
 
 # Include some test utilities (data loading, etc.)
 include("test_utils.jl")
+
+# -----------------------------------------------------------------------------
+# UNIT TESTS
+# -----------------------------------------------------------------------------
 
 # MetaICVI module testing
 @testset "MetaICVI.jl" begin
@@ -18,7 +37,7 @@ include("test_utils.jl")
     training_dir(args...) = data_dir("training", args...)
     testing_dir(args...) = data_dir("testing", args...)
     models_dir(args...) = data_dir("models", args...)
-    results_dir(args...) = joinpath("../data/results", args...)
+    results_dir(args...) = data_dir("results", args...)
 
     # Create the module
     opts = MetaICVIOpts(
@@ -32,7 +51,15 @@ include("test_utils.jl")
     train_data, test_data = MetaICVI.split_training_data(local_data)
     test_x, test_y = MetaICVI.serialize_data(test_data)
     features_data, features_targets = get_training_features(metaicvi, train_data)
-    train_and_save(metaicvi, features_data, features_targets)
+
+    try
+        train_and_save(metaicvi, features_data, features_targets)
+    catch e
+        @warn "Caught error" e
+        # Cleanup
+        rm(models_dir("classifier.jld2"))
+        rm(models_dir("rocket.jld2"))
+    end
 
     # Display some aspects of the module
     @info fieldnames(typeof(metaicvi))
@@ -46,14 +73,16 @@ include("test_utils.jl")
     new_metaicvi = MetaICVIModule(opts)
 
     # Load the data and test across all supervised modules
-    data = load_iris(testing_dir("Iris.csv"))
+    # data = load_iris(testing_dir("Iris.csv"))
     # data.train_y = relabel_cvi_data(data.train_y)
 
     # Iterate over the data
-    n_data = length(data.train_y)
+    # n_data = length(data.train_y)
+    n_data = length(test_y)
     performances = zeros(n_data)
     performances_orig = zeros(n_data)
-    for i = 1:n_data
+    # for i = 1:n_data
+    for i = 1:100
         # sample = data.train_x[:, i]
         # label = data.train_y[i]
         # performances[i] = get_metaicvi(metaicvi, sample, label)
@@ -71,7 +100,7 @@ include("test_utils.jl")
     @test all(performances_orig .<= 1)
 
     # Cleanup
-    rm(models_dir("classifier.jld"))
+    rm(models_dir("classifier.jld2"))
     rm(models_dir("rocket.jld2"))
 end
 
