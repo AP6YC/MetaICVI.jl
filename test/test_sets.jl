@@ -10,12 +10,9 @@ This file loads common utilities and aggregates all other unit tests files.
 # DEPENDENCIES
 # -----------------------------------------------------------------------------
 
-# using PyCall
-# using JLD
 # using ClusterValidityIndices
 using
     MetaICVI,
-    # PyCallJLD,
     # Test,
     Logging
 
